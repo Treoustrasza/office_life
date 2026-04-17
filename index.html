@@ -1512,10 +1512,10 @@ function showInfo(slug) {
 
 // ===== 随机事件 =====
 const events = [
-  { msg:'⚖️ 新案件来了！成步堂紧急出动', action:() => { const e=document.getElementById('char-naruhodou'); if(e&&e.style.display!=='none') showPhrase(e,'逆转！！！'); } },
+  { msg:'⚖️ 新案件来了！成步堂紧急出动', action:() => { const e=document.getElementById('char-naruhodou'); if(e&&e.style.display!=='none') showPhrase(e,'异议！！！'); } },
   { msg:'☕ 咖啡机坏了！全员崩溃', action:() => { const e=document.getElementById('char-yahari'); if(e&&e.style.display!=='none') showPhrase(e,'咖啡机坏了！！！'); } },
-  { msg:'📢 御剑宣布：今日开庭！', action:() => { const e=document.getElementById('char-mitsurugi'); if(e&&e.style.display!=='none') showPhrase(e,'我从未输过！'); } },
-  { msg:'🍱 要买盒饭吗出现了！', action:() => { const e=document.getElementById('char-bentou'); if(e&&e.style.display!=='none') showPhrase(e,'要买盒饭吗？'); } },
+  { msg:'📢 御剑宣布：我是来挑战你的！', action:() => { const e=document.getElementById('char-mitsurugi'); if(e&&e.style.display!=='none') showPhrase(e,'区区靠运气赢下三次的新手律师……'); } },
+  { msg:'🍱 该吃午饭了！', action:() => { const e=document.getElementById('char-bentou'); if(e&&e.style.display!=='none') showPhrase(e,'要买盒饭吗？'); } },
   { msg:'💤 下午三点，全员犯困', action:() => {
     document.querySelectorAll('.character').forEach(el => { if(el.style.display!=='none') el.classList.add('yawning'); });
     setTimeout(() => document.querySelectorAll('.character').forEach(el => el.classList.remove('yawning')), 3000);

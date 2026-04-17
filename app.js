@@ -207,14 +207,101 @@ function showInfo(slug) {
 
 // ===== 随机事件 =====
 const events = [
-  { msg:'⚖️ 新案件来了！成步堂紧急出动', action:() => { const e=document.getElementById('char-naruhodou'); if(e&&e.style.display!=='none') showPhrase(e,'异议！！！'); } },
-  { msg:'☕ 咖啡机坏了！全员崩溃', action:() => { const e=document.getElementById('char-yahari'); if(e&&e.style.display!=='none') showPhrase(e,'咖啡机坏了！！！'); } },
-  { msg:'📢 御剑宣布：我是来挑战你的！', action:() => { const e=document.getElementById('char-mitsurugi'); if(e&&e.style.display!=='none') showPhrase(e,'区区靠运气赢下三次的新手律师……'); } },
-  { msg:'🍱 该吃午饭了！', action:() => { const e=document.getElementById('char-bentou'); if(e&&e.style.display!=='none') showPhrase(e,'要买盒饭吗？'); } },
-  { msg:'💤 下午三点，全员犯困', action:() => {
-    document.querySelectorAll('.character').forEach(el => { if(el.style.display!=='none') el.classList.add('yawning'); });
-    setTimeout(() => document.querySelectorAll('.character').forEach(el => el.classList.remove('yawning')), 3000);
-  }},
+  {
+    msg: '⚖️ 新案件来了！成步堂紧急出动',
+    action: () => {
+      const e = document.getElementById('char-naruhodou');
+      if (e && e.style.display !== 'none') showPhrase(e, '异议！！！');
+    }
+  },
+  {
+    msg: '☕ 咖啡机坏了！全员崩溃',
+    action: () => {
+      const e = document.getElementById('char-yahari');
+      if (e && e.style.display !== 'none') showPhrase(e, '咖啡机坏了！！！');
+    }
+  },
+  {
+    msg: '📢 御剑宣布：我是来挑战你的！',
+    action: () => {
+      const e = document.getElementById('char-mitsurugi');
+      if (e && e.style.display !== 'none') showPhrase(e, '区区靠运气赢下三次的新手律师……');
+    }
+  },
+  {
+    msg: '🍱 该吃午饭了！',
+    action: () => {
+      const e = document.getElementById('char-bentou');
+      if (e && e.style.display !== 'none') showPhrase(e, '要买盒饭吗？');
+    }
+  },
+  {
+    msg: '💤 下午三点，全员犯困',
+    action: () => {
+      document.querySelectorAll('.character').forEach(el => {
+        if (el.style.display !== 'none') el.classList.add('yawning');
+      });
+      setTimeout(() => {
+        document.querySelectorAll('.character').forEach(el => el.classList.remove('yawning'));
+      }, 3000);
+    }
+  },
+  {
+    msg: '👻 真宵突然发动灵媒术，全员震惊',
+    action: () => {
+      const e = document.getElementById('char-mayoi');
+      if (e && e.style.display !== 'none') showPhrase(e, '姐姐教过我！');
+    }
+  },
+  {
+    msg: '🤖 将军超人在洗手间发动必杀技！',
+    action: () => {
+      const e = document.getElementById('char-shogun');
+      if (e && e.style.display !== 'none') showPhrase(e, '必杀技！五月雨突刺！');
+    }
+  },
+  {
+    msg: '🌸 粉色小姐路过，全员停止工作',
+    action: () => {
+      const e = document.getElementById('char-pink_lady');
+      if (e && e.style.display !== 'none') showPhrase(e, '嗯哼～');
+    }
+  },
+  {
+    msg: '📣 大场香开始滔滔不绝……',
+    action: () => {
+      const e = document.getElementById('char-ooba');
+      if (e && e.style.display !== 'none') showPhrase(e, '大婶我啊年轻时候也是（以下省略500字）');
+    }
+  },
+  {
+    msg: '🦜 小百合突然开口说话，全员沉默',
+    action: () => {
+      const e = document.getElementById('char-sayuri');
+      if (e && e.style.display !== 'none') showPhrase(e, '不可忘记DL-6号事件。');
+    }
+  },
+  {
+    msg: '❓ 逮捕君开始剧烈摇晃，原因不明',
+    action: () => {
+      const e = document.getElementById('char-mystery');
+      if (e && e.style.display !== 'none') showPhrase(e, '（剧烈摇晃）');
+    }
+  },
+  {
+    msg: '🔍 矢张出现在茶水间，行迹可疑',
+    action: () => {
+      const e = document.getElementById('char-yahari');
+      if (e && e.style.display !== 'none') showPhrase(e, '我不是可疑人员啊！');
+    }
+  },
+  {
+    msg: '🛡️ 保安弄丢了重要东西……',
+    action: () => {
+      const e = document.getElementById('char-guard');
+      if (e && e.style.display !== 'none') showPhrase(e, '那个，好像被我弄丢了！');
+    }
+  },
 ];
 
 function triggerRandomEvent() {

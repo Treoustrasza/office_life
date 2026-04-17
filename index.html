@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社畜收集梦想生活</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ===== 标题栏 ===== */
+  #title-bar {
+    width: 100%;
+    background: #16213e;
+    border-bottom: 4px solid #0f3460;
+    padding: 12px 0 8px;
+    text-align: center;
+    position: relative;
+    z-index: 100;
+  }
+  #title-bar h1 {
+    font-size: 18px;
+    color: #e94560;
+    text-shadow: 3px 3px 0 #0f3460, -1px -1px 0 #ff6b9d;
+    letter-spacing: 2px;
+    image-rendering: pixelated;
+  }
+  #title-bar p {
+    font-size: 7px;
+    color: #a8b2d8;
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+  #clock {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #64ffda;
+    background: #0f3460;
+    padding: 4px 8px;
+    border: 2px solid #64ffda;
+  }
+
+  /* ===== 主场景容器 ===== */
+  #game-world {
+    width: 1200px;
+    max-width: 100vw;
+    position: relative;
+    margin-top: 10px;
+  }
+
+  /* ===== 楼层标签 ===== */
+  .floor-label {
+    font-size: 8px;
+    color: #64ffda;
+    background: #0f3460;
+    border: 2px solid #64ffda;
+    padding: 3px 8px;
+    display: inline-block;
+    margin: 4px 0 0 8px;
+  }
+
+  /* ===== 场景区域通用 ===== */
+  .scene {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid #0f3460;
+    margin-bottom: 0;
+  }
+
+  /* ===== 工位区 ===== */
+  #office-area {
+    height: 340px;
+    background: #e8e0d0;
+  }
+
+  /* 地板 */
+  .floor-tiles {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: repeating-linear-gradient(
+      90deg,
+      #c8bfa8 0px, #c8bfa8 39px,
+      #b8af98 39px, #b8af98 40px
+    );
+    border-top: 3px solid #a09080;
+  }
+
+  /* 天花板 */
+  .ceiling {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: #d0c8b8;
+    border-bottom: 3px solid #b0a898;
+  }
+
+  /* 墙壁 */
+  .wall {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    background: #f0ebe0;
+  }
+
+  /* 窗户 */
+  .window-pixel {
+    position: absolute;
+    top: 30px;
+    width: 80px;
+    height: 70px;
+    background: #87ceeb;
+    border: 4px solid #8b7355;
+    image-rendering: pixelated;
+  }
+  .window-pixel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 3px;
+    background: #8b7355;
+  }
+  .window-pixel::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: #8b7355;
+  }
+  .window-pixel .sun {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    background: #ffd700;
+    box-shadow: 0 0 0 3px #ffd700;
+  }
+
+  /* 工位桌子 */
+  .desk {
+    position: absolute;
+    bottom: 60px;
+    width: 120px;
+    height: 50px;
+    background: #8b6914;
+    border-top: 6px solid #a07820;
+    border-left: 4px solid #6b5010;
+    border-right: 4px solid #6b5010;
+  }
+  .desk::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 10px;
+    right: 10px;
+    height: 20px;
+    background: #6b5010;
+  }
+
+  /* 电脑显示器 */
+  .monitor {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 36px;
+    background: #222;
+    border: 3px solid #444;
+  }
+  .monitor-screen {
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    background: #001a33;
+    overflow: hidden;
+  }
+  .monitor-screen::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 2px;
+    width: 60%;
+    height: 3px;
+    background: #00ff41;
+    box-shadow: 0 6px 0 #00ff41, 0 12px 0 rgba(0,255,65,0.5);
+    animation: blink-code 2s infinite;
+  }
+  @keyframes blink-code {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .monitor-stand {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 8px;
+    background: #444;
+  }
+
+  /* 椅子 */
+  .chair {
+    position: absolute;
+    bottom: 60px;
+    width: 40px;
+    height: 40px;
+  }
+  .chair-back {
+    position: absolute;
+    top: 0;
+    left: 5px;
+    width: 30px;
+    height: 22px;
+    background: #2c5f8a;
+    border: 2px solid #1a3f5c;
+    border-radius: 2px 2px 0 0;
+  }
+  .chair-seat {
+    position: absolute;
+    top: 20px;
+    left: 2px;
+    width: 36px;
+    height: 12px;
+    background: #2c5f8a;
+    border: 2px solid #1a3f5c;
+  }
+  .chair-leg {
+    position: absolute;
+    bottom: 0;
+    width: 4px;
+    height: 10px;
+    background: #888;
+  }
+
+  /* 咖啡杯 */
+  .coffee-cup {
+    position: absolute;
+    width: 14px;
+    height: 12px;
+    background: #fff;
+    border: 2px solid #888;
+  }
+  .coffee-cup::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 2px;
+    height: 4px;
+    background: #6b3a2a;
+  }
+  .coffee-cup::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 2px;
+    width: 5px;
+    height: 6px;
+    border: 2px solid #888;
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* 文件堆 */
+  .papers {
+    position: absolute;
+    width: 30px;
+    height: 4px;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 -3px 0 #f5f5f5, 0 -6px 0 #efefef;
+  }
+
+  /* ===== 茶水间 ===== */
+  #kitchen-area {
+    height: 260px;
+    background: #e0f0e8;
+    border-top: 4px solid #0f3460;
+  }
+
+  .kitchen-wall {
+    position: absolute;
+    top: 20px; left: 0; right: 0; bottom: 60px;
+    background: #f0f8f0;
+  }
+
+  /* 瓷砖墙 */
+  .tile-wall {
+    position: absolute;
+    top: 20px; left: 0; right: 0;
+    height: 100px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0, transparent 29px, #c8e0c8 29px, #c8e0c8 30px),
+      repeating-linear-gradient(0deg, transparent 0, transparent 29px, #c8e0c8 29px, #c8e0c8 30px);
+    background-color: #e8f5e8;
+  }
+
+  /* 橱柜 */
+  .cabinet {
+    position: absolute;
+    bottom: 60px;
+    height: 80px;
+    background: #8fbc8f;
+    border-top: 6px solid #6a9a6a;
+    border-left: 3px solid #5a8a5a;
+    border-right: 3px solid #5a8a5a;
+  }
+  .cabinet-door {
+    position: absolute;
+    top: 8px;
+    width: 44%;
+    height: 55px;
+    background: #7aad7a;
+    border: 2px solid #5a8a5a;
+  }
+  .cabinet-door:first-child { left: 4%; }
+  .cabinet-door:last-child { right: 4%; }
+  .cabinet-handle {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    width: 4px;
+    height: 12px;
+    background: #c8a850;
+    transform: translateY(-50%);
+  }
+
+  /* 咖啡机 */
+  .coffee-machine {
+    position: absolute;
+    bottom: 60px;
+    width: 50px;
+    height: 70px;
+    background: #333;
+    border: 3px solid #555;
+  }
+  .coffee-machine-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 20px;
+    background: #444;
+    border-bottom: 2px solid #222;
+  }
+  .coffee-machine-light {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #00ff00;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+  .coffee-machine-cup {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 14px;
+    background: #fff;
+    border: 2px solid #888;
+  }
+
+  /* 微波炉 */
+  .microwave {
+    position: absolute;
+    bottom: 60px;
+    width: 70px;
+    height: 50px;
+    background: #e8e8e8;
+    border: 3px solid #aaa;
+  }
+  .microwave-door {
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 42px;
+    height: 36px;
+    background: #222;
+    border: 2px solid #555;
+  }
+  .microwave-panel {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 14px;
+    height: 36px;
+    background: #ccc;
+  }
+  .microwave-btn {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #e94560;
+    left: 3px;
+  }
+
+  /* 冰箱 */
+  .fridge {
+    position: absolute;
+    bottom: 60px;
+    width: 60px;
+    height: 110px;
+    background: #f0f0f0;
+    border: 3px solid #ccc;
+  }
+  .fridge-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    background: #e8e8e8;
+    border-bottom: 2px solid #ccc;
+  }
+  .fridge-handle {
+    position: absolute;
+    right: 6px;
+    width: 4px;
+    height: 20px;
+    background: #aaa;
+    border-radius: 2px;
+  }
+
+  /* ===== 厕所区 ===== */
+  #toilet-area {
+    height: 240px;
+    background: #e8eef5;
+    border-top: 4px solid #0f3460;
+  }
+
+  .toilet-wall {
+    position: absolute;
+    top: 20px; left: 0; right: 0; bottom: 60px;
+    background: #f5f8ff;
+  }
+
+  /* 白色瓷砖 */
+  .white-tiles {
+    position: absolute;
+    top: 20px; left: 0; right: 0;
+    height: 80px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0, transparent 19px, #d0d8e8 19px, #d0d8e8 20px),
+      repeating-linear-gradient(0deg, transparent 0, transparent 19px, #d0d8e8 19px, #d0d8e8 20px);
+    background-color: #f0f4ff;
+  }
+
+  /* 马桶隔间 */
+  .toilet-stall {
+    position: absolute;
+    bottom: 60px;
+    width: 80px;
+    height: 130px;
+    border-left: 6px solid #8899aa;
+    border-right: 6px solid #8899aa;
+    border-top: 6px solid #8899aa;
+    background: rgba(200,210,230,0.3);
+  }
+  .stall-door {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 90px;
+    background: #b0c0d0;
+    border: 3px solid #8899aa;
+  }
+  .stall-door-handle {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    width: 4px;
+    height: 16px;
+    background: #c8a850;
+    transform: translateY(-50%);
+  }
+
+  /* 马桶 */
+  .toilet {
+    position: absolute;
+    bottom: 60px;
+    width: 36px;
+    height: 44px;
+  }
+  .toilet-tank {
+    position: absolute;
+    top: 0;
+    left: 4px;
+    width: 28px;
+    height: 18px;
+    background: #e8e8e8;
+    border: 2px solid #ccc;
+  }
+  .toilet-bowl {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 36px;
+    height: 28px;
+    background: #e8e8e8;
+    border: 2px solid #ccc;
+    border-radius: 0 0 8px 8px;
+  }
+
+  /* 洗手台 */
+  .sink {
+    position: absolute;
+    bottom: 60px;
+    width: 50px;
+    height: 36px;
+    background: #e8e8e8;
+    border: 3px solid #ccc;
+    border-radius: 0 0 6px 6px;
+  }
+  .sink-faucet {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 12px;
+    background: #aaa;
+  }
+  .sink-faucet::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -6px;
+    width: 18px;
+    height: 4px;
+    background: #aaa;
+  }
+
+  /* 镜子 */
+  .mirror {
+    position: absolute;
+    width: 50px;
+    height: 60px;
+    background: linear-gradient(135deg, #e8f0ff 0%, #c8d8f0 50%, #e0e8ff 100%);
+    border: 4px solid #8899aa;
+  }
+  .mirror::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px;
+    width: 12px;
+    height: 8px;
+    background: rgba(255,255,255,0.6);
+  }
+
+  /* ===== 角色通用样式 ===== */
+  .character {
+    position: absolute;
+    width: auto;
+    height: 80px;
+    cursor: pointer;
+    z-index: 10;
+    transition: none;
+    image-rendering: pixelated;
+  }
+  .character img {
+    width: auto;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+  .character:hover {
+    filter: brightness(1.2);
+  }
+
+  /* 角色名字气泡 */
+  .char-name {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f3460;
+    color: #64ffda;
+    font-size: 5px;
+    padding: 2px 4px;
+    white-space: nowrap;
+    border: 1px solid #64ffda;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .character:hover .char-name { opacity: 1; }
+
+  /* 对话气泡 */
+  .speech-bubble {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 2px solid #333;
+    padding: 4px 6px;
+    font-size: 6px;
+    color: #333;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+    max-width: 120px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: -2px;
+    border: 5px solid transparent;
+    border-top-color: #fff;
+    z-index: 1;
+  }
+
+  /* 状态图标 */
+  .status-icon {
+    position: absolute;
+    top: -16px;
+    right: -4px;
+    font-size: 12px;
+    z-index: 15;
+    animation: float 1s ease-in-out infinite alternate;
+  }
+  @keyframes float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-4px); }
+  }
+
+  /* 走路动画 */
+  @keyframes walk-bounce {
+    0%, 100% { transform: translateY(0) scaleX(1); }
+    50% { transform: translateY(-3px) scaleX(1); }
+  }
+  .walking {
+    animation: walk-bounce 0.4s steps(2) infinite;
+  }
+  .walking-left {
+    animation: walk-bounce 0.4s steps(2) infinite;
+    transform: scaleX(-1);
+  }
+
+  /* 工作动画 */
+  @keyframes work-nod {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  .working {
+    animation: work-nod 1s ease-in-out infinite;
+  }
+
+  /* 喝咖啡动画 */
+  @keyframes drink {
+    0%, 100% { transform: rotate(0deg); }
+    30% { transform: rotate(-15deg); }
+    60% { transform: rotate(-15deg); }
+  }
+  .drinking {
+    animation: drink 2s ease-in-out infinite;
+  }
+
+  /* ===== 底部状态栏 ===== */
+  #status-bar {
+    width: 1200px;
+    max-width: 100vw;
+    background: #16213e;
+    border-top: 3px solid #0f3460;
+    padding: 8px 16px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    font-size: 7px;
+    color: #a8b2d8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-item span { color: #64ffda; }
+
+  /* ===== 角色面板 ===== */
+  #char-panel {
+    width: 1200px;
+    max-width: 100vw;
+    background: #16213e;
+    border-top: 3px solid #0f3460;
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #char-panel .panel-title {
+    font-size: 7px;
+    color: #e94560;
+    margin-right: 4px;
+  }
+  .char-avatar {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #0f3460;
+    cursor: pointer;
+    image-rendering: pixelated;
+    transition: border-color 0.2s;
+    background: #0f3460;
+  }
+  .char-avatar:hover { border-color: #64ffda; }
+  .char-avatar.active { border-color: #e94560; }
+  .char-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+
+  /* ===== 装饰元素 ===== */
+  .plant {
+    position: absolute;
+    bottom: 60px;
+    width: 28px;
+    height: 40px;
+  }
+  .plant-pot {
+    position: absolute;
+    bottom: 0;
+    left: 4px;
+    width: 20px;
+    height: 14px;
+    background: #c87941;
+    border: 2px solid #a05a28;
+  }
+  .plant-stem {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    width: 4px;
+    height: 16px;
+    background: #4a8a3a;
+  }
+  .plant-leaf {
+    position: absolute;
+    width: 14px;
+    height: 10px;
+    background: #5aaa4a;
+    border-radius: 50%;
+  }
+
+  /* 告示牌 */
+  .sign {
+    position: absolute;
+    background: #ffd700;
+    border: 3px solid #b8860b;
+    padding: 4px 8px;
+    font-size: 6px;
+    color: #333;
+    z-index: 5;
+  }
+
+  /* 区域标题 */
+  .area-sign {
+    position: absolute;
+    top: 24px;
+    right: 12px;
+    background: #0f3460;
+    color: #64ffda;
+    font-size: 7px;
+    padding: 3px 8px;
+    border: 2px solid #64ffda;
+    z-index: 5;
+  }
+
+  /* 鹦鹉特殊动画 */
+  @keyframes parrot-bob {
+    0%, 100% { transform: rotate(-5deg) translateY(0); }
+    50% { transform: rotate(5deg) translateY(-4px); }
+  }
+  .parrot-anim {
+    animation: parrot-bob 0.8s ease-in-out infinite;
+  }
+
+  /* 打哈欠动画 */
+  @keyframes yawn {
+    0%, 80%, 100% { transform: scale(1); }
+    40% { transform: scale(1.05) translateY(-2px); }
+  }
+  .yawning { animation: yawn 3s ease-in-out infinite; }
+
+  /* 睡觉 zzz */
+  @keyframes zzz-float {
+    0% { opacity: 0; transform: translate(0,0) scale(0.5); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translate(10px,-20px) scale(1); }
+  }
+  .zzz {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    font-size: 10px;
+    color: #64ffda;
+    font-family: monospace;
+    animation: zzz-float 2s ease-out infinite;
+    pointer-events: none;
+  }
+  .zzz:nth-child(2) { animation-delay: 0.7s; font-size: 8px; }
+  .zzz:nth-child(3) { animation-delay: 1.4s; font-size: 6px; }
+
+  /* 进度条（摸鱼值） */
+  .fish-bar {
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #333;
+  }
+  .fish-fill {
+    height: 100%;
+    background: #e94560;
+    transition: width 0.5s;
+  }
+
+  /* 滚动提示 */
+  #scroll-hint {
+    font-size: 7px;
+    color: #a8b2d8;
+    text-align: center;
+    padding: 6px;
+    background: #16213e;
+    width: 1200px;
+    max-width: 100vw;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 标题栏 -->
+<div id="title-bar">
+  <h1>🏢 社畜收集梦想生活</h1>
+  <p>▶ 点击角色查看状态 | 观察他们的日常生活</p>
+  <div id="clock">⏰ 09:00</div>
+</div>
+
+<!-- 主游戏世界 -->
+<div id="game-world">
+
+  <!-- ===== 工位区 ===== -->
+  <div class="floor-label">📋 工位区 · OFFICE FLOOR</div>
+  <div class="scene" id="office-area">
+    <div class="ceiling"></div>
+    <div class="wall"></div>
+
+    <!-- 窗户 -->
+    <div class="window-pixel" style="left:60px"><div class="sun"></div></div>
+    <div class="window-pixel" style="left:200px"><div class="sun"></div></div>
+    <div class="window-pixel" style="left:900px"></div>
+    <div class="window-pixel" style="left:1040px"></div>
+
+    <!-- 区域标识 -->
+    <div class="area-sign">OFFICE ZONE</div>
+
+    <!-- 告示牌 -->
+    <div class="sign" style="top:28px; left:340px">📌 今日KPI: 活着</div>
+    <div class="sign" style="top:28px; left:600px">⚠️ 禁止摸鱼</div>
+
+    <!-- 工位1 -->
+    <div class="desk" style="left:80px">
+      <div class="monitor">
+        <div class="monitor-screen"></div>
+        <div class="monitor-stand"></div>
+      </div>
+      <div class="coffee-cup" style="position:absolute;bottom:8px;right:8px"></div>
+      <div class="papers" style="position:absolute;bottom:8px;left:8px"></div>
+    </div>
+    <div class="chair" style="left:100px">
+      <div class="chair-back"></div>
+      <div class="chair-seat"></div>
+      <div class="chair-leg" style="left:4px"></div>
+      <div class="chair-leg" style="right:4px"></div>
+    </div>
+
+    <!-- 工位2 -->
+    <div class="desk" style="left:260px">
+      <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
+      <div class="coffee-cup" style="position:absolute;bottom:8px;right:8px"></div>
+    </div>
+    <div class="chair" style="left:280px">
+      <div class="chair-back"></div><div class="chair-seat"></div>
+      <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
+    </div>
+
+    <!-- 工位3 -->
+    <div class="desk" style="left:440px">
+      <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
+      <div class="papers" style="position:absolute;bottom:8px;left:8px"></div>
+    </div>
+    <div class="chair" style="left:460px">
+      <div class="chair-back"></div><div class="chair-seat"></div>
+      <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
+    </div>
+
+    <!-- 工位4 -->
+    <div class="desk" style="left:620px">
+      <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
+      <div class="coffee-cup" style="position:absolute;bottom:8px;left:8px"></div>
+    </div>
+    <div class="chair" style="left:640px">
+      <div class="chair-back"></div><div class="chair-seat"></div>
+      <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
+    </div>
+
+    <!-- 工位5 -->
+    <div class="desk" style="left:800px">
+      <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
+    </div>
+    <div class="chair" style="left:820px">
+      <div class="chair-back"></div><div class="chair-seat"></div>
+      <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
+    </div>
+
+    <!-- 植物装饰 -->
+    <div class="plant" style="left:20px">
+      <div class="plant-stem"></div>
+      <div class="plant-leaf" style="bottom:22px;left:0"></div>
+      <div class="plant-leaf" style="bottom:26px;left:10px"></div>
+      <div class="plant-pot"></div>
+    </div>
+    <div class="plant" style="left:1140px">
+      <div class="plant-stem"></div>
+      <div class="plant-leaf" style="bottom:22px;left:0"></div>
+      <div class="plant-leaf" style="bottom:26px;left:10px"></div>
+      <div class="plant-pot"></div>
+    </div>
+
+    <!-- 地板 -->
+    <div class="floor-tiles"></div>
+
+    <!-- 角色们 (office) -->
+    <div class="character" id="char-naruhodou" style="bottom:60px;left:100px" onclick="showInfo('naruhodou')">
+      <img src="chars/naruhodou.png" alt="成步堂">
+      <div class="char-name">成步堂 · 律师</div>
+      <div class="status-icon" id="icon-naruhodou">⚖️</div>
+    </div>
+
+    <div class="character" id="char-mayoi" style="bottom:60px;left:280px" onclick="showInfo('mayoi')">
+      <img src="chars/mayoi.png" alt="真宵">
+      <div class="char-name">真宵 · 灵媒（见习）</div>
+      <div class="status-icon" id="icon-mayoi">👻</div>
+    </div>
+
+    <div class="character" id="char-chihiro" style="bottom:60px;left:460px" onclick="showInfo('chihiro')">
+      <img src="chars/chihiro.png" alt="千寻">
+      <div class="char-name">千寻 · 老板</div>
+      <div class="status-icon" id="icon-chihiro">📁</div>
+    </div>
+
+    <div class="character" id="char-mitsurugi" style="bottom:60px;left:640px" onclick="showInfo('mitsurugi')">
+      <img src="chars/mitsurugi.png" alt="御剑">
+      <div class="char-name">御剑 · 竞对高管</div>
+      <div class="status-icon" id="icon-mitsurugi">🗡️</div>
+    </div>
+
+    <div class="character" id="char-itonokogiri" style="bottom:60px;left:820px" onclick="showInfo('itonokogiri')">
+      <img src="chars/itonokogiri.png" alt="糸锯">
+      <div class="char-name">糸锯 · 没有钱</div>
+      <div class="status-icon" id="icon-itonokogiri">🔍</div>
+    </div>
+
+    <div class="character" id="char-lawyer2" style="bottom:60px;left:980px" onclick="showInfo('lawyer2')">
+      <img src="chars/lawyer2.png" alt="法务">
+      <div class="char-name">法务（？） · 卫生间主理人</div>
+      <div class="status-icon" id="icon-lawyer2">📋</div>
+    </div>
+
+  </div>
+
+  <!-- ===== 茶水间 ===== -->
+  <div class="floor-label">☕ 茶水间 · BREAK ROOM</div>
+  <div class="scene" id="kitchen-area">
+    <div class="ceiling"></div>
+    <div class="tile-wall"></div>
+    <div class="area-sign">BREAK ROOM</div>
+
+    <!-- 橱柜 -->
+    <div class="cabinet" style="left:0;width:200px">
+      <div class="cabinet-door"><div class="cabinet-handle"></div></div>
+      <div class="cabinet-door" style="right:4%"><div class="cabinet-handle"></div></div>
+    </div>
+
+    <!-- 咖啡机 -->
+    <div class="coffee-machine" style="left:220px">
+      <div class="coffee-machine-top">
+        <div class="coffee-machine-light"></div>
+      </div>
+      <div class="coffee-machine-cup"></div>
+    </div>
+
+    <!-- 微波炉 -->
+    <div class="microwave" style="left:290px">
+      <div class="microwave-door"></div>
+      <div class="microwave-panel">
+        <div class="microwave-btn" style="top:6px"></div>
+        <div class="microwave-btn" style="top:18px;background:#64ffda"></div>
+        <div class="microwave-btn" style="top:30px;background:#ffd700"></div>
+      </div>
+    </div>
+
+    <!-- 冰箱 -->
+    <div class="fridge" style="left:380px">
+      <div class="fridge-top">
+        <div class="fridge-handle" style="top:8px"></div>
+      </div>
+      <div class="fridge-handle" style="top:50px"></div>
+    </div>
+
+    <!-- 橱柜右侧 -->
+    <div class="cabinet" style="right:0;width:300px">
+      <div class="cabinet-door"><div class="cabinet-handle"></div></div>
+      <div class="cabinet-door" style="right:4%"><div class="cabinet-handle"></div></div>
+    </div>
+
+    <!-- 告示牌 -->
+    <div class="sign" style="top:28px;left:500px">☕ 咖啡限量供应</div>
+    <div class="sign" style="top:28px;left:750px">🍱 请勿偷吃他人食物</div>
+
+    <!-- 植物 -->
+    <div class="plant" style="left:460px">
+      <div class="plant-stem"></div>
+      <div class="plant-leaf" style="bottom:22px;left:0"></div>
+      <div class="plant-leaf" style="bottom:26px;left:10px"></div>
+      <div class="plant-pot"></div>
+    </div>
+
+    <!-- 地板 -->
+    <div class="floor-tiles"></div>
+
+    <!-- 茶水间角色 -->
+    <div class="character" id="char-yahari" style="bottom:60px;left:180px" onclick="showInfo('yahari')">
+      <img src="chars/yahari.png" alt="矢张">
+      <div class="char-name">矢张 · 幕后黑手</div>
+      <div class="status-icon" id="icon-yahari">🚔</div>
+    </div>
+
+    <div class="character" id="char-pink_lady" style="bottom:60px;left:420px" onclick="showInfo('pink_lady')">
+      <img src="chars/pink_lady.png" alt="粉色小姐">
+      <div class="char-name">粉色小姐 · 只是秘书</div>
+      <div class="status-icon" id="icon-pink_lady">🌸</div>
+    </div>
+
+    <div class="character" id="char-ooba" style="bottom:60px;left:660px" onclick="showInfo('ooba')">
+      <img src="chars/ooba.png" alt="大场香">
+      <div class="char-name">大场香 · 前台</div>
+      <div class="status-icon" id="icon-ooba">⚖️</div>
+    </div>
+
+    <div class="character" id="char-himegami" style="bottom:60px;left:880px" onclick="showInfo('himegami')">
+      <img src="chars/himegami.png" alt="姬神樱">
+      <div class="char-name">姬神樱 · 文员</div>
+      <div class="status-icon" id="icon-himegami">🔮</div>
+    </div>
+
+    <div class="character" id="char-bentou" style="bottom:60px;left:1060px" onclick="showInfo('bentou')">
+      <img src="chars/bentou.png" alt="要买盒饭吗">
+      <div class="char-name">要买盒饭吗 · 小贩（？）</div>
+      <div class="status-icon" id="icon-bentou">🍱</div>
+    </div>
+
+  </div>
+
+  <!-- ===== 厕所区 ===== -->
+  <div class="floor-label">🚻 洗手间 · RESTROOM</div>
+  <div class="scene" id="toilet-area">
+    <div class="ceiling"></div>
+    <div class="white-tiles"></div>
+    <div class="area-sign">RESTROOM</div>
+
+    <!-- 隔间 -->
+    <div class="toilet-stall" style="left:80px">
+      <div class="stall-door"><div class="stall-door-handle"></div></div>
+    </div>
+    <div class="toilet-stall" style="left:200px">
+      <div class="stall-door"><div class="stall-door-handle"></div></div>
+    </div>
+    <div class="toilet-stall" style="left:320px">
+      <div class="stall-door" style="background:#e94560;opacity:0.5"><div class="stall-door-handle"></div></div>
+    </div>
+
+    <!-- 马桶 -->
+    <div class="toilet" style="left:100px">
+      <div class="toilet-tank"></div>
+      <div class="toilet-bowl"></div>
+    </div>
+    <div class="toilet" style="left:220px">
+      <div class="toilet-tank"></div>
+      <div class="toilet-bowl"></div>
+    </div>
+    <div class="toilet" style="left:340px">
+      <div class="toilet-tank"></div>
+      <div class="toilet-bowl"></div>
+    </div>
+
+    <!-- 洗手台 -->
+    <div class="sink" style="left:500px">
+      <div class="sink-faucet"></div>
+    </div>
+    <div class="sink" style="left:580px">
+      <div class="sink-faucet"></div>
+    </div>
+    <div class="sink" style="left:660px">
+      <div class="sink-faucet"></div>
+    </div>
+
+    <!-- 镜子 -->
+    <div class="mirror" style="left:500px;bottom:96px;position:absolute"></div>
+    <div class="mirror" style="left:580px;bottom:96px;position:absolute"></div>
+    <div class="mirror" style="left:660px;bottom:96px;position:absolute"></div>
+
+    <!-- 告示牌 -->
+    <div class="sign" style="top:28px;left:800px">📱 如厕请勿玩手机</div>
+    <div class="sign" style="top:28px;left:400px">🚿 用后请冲水</div>
+
+    <!-- 地板 -->
+    <div class="floor-tiles" style="background:repeating-linear-gradient(90deg,#d0d8e8 0px,#d0d8e8 39px,#c0c8d8 39px,#c0c8d8 40px)"></div>
+
+    <!-- 洗手间角色 -->
+    <div class="character" id="char-shogun" style="bottom:60px;left:200px" onclick="showInfo('shogun')">
+      <img src="chars/shogun.png" alt="将军超人">
+      <div class="char-name">将军超人 · 大家的偶像</div>
+      <div class="status-icon" id="icon-shogun">🤖</div>
+    </div>
+
+    <div class="character" id="char-houtsuki" style="bottom:60px;left:450px" onclick="showInfo('houtsuki')">
+      <img src="chars/houtsuki.png" alt="宝月巴">
+      <div class="char-name">宝月巴 · 竞对老板</div>
+      <div class="status-icon" id="icon-houtsuki">🔎</div>
+    </div>
+
+    <div class="character" id="char-sayuri" style="bottom:60px;left:680px" onclick="showInfo('sayuri')">
+      <img src="chars/sayuri.png" alt="小百合">
+      <div class="char-name">小百合 · 不要忘记……</div>
+      <div class="status-icon" id="icon-sayuri">🌸</div>
+    </div>
+
+    <div class="character" id="char-cowboy" style="bottom:60px;left:860px" onclick="showInfo('cowboy')">
+      <img src="chars/cowboy.png" alt="牛仔">
+      <div class="char-name">牛仔（？） · 无所事事的家伙</div>
+      <div class="status-icon" id="icon-cowboy">🤠</div>
+    </div>
+
+    <div class="character" id="char-mystery" style="bottom:60px;left:1020px" onclick="showInfo('mystery')">
+      <img src="chars/mystery.png" alt="神秘摇晃立牌">
+      <div class="char-name">神秘立牌 · ???</div>
+      <div class="status-icon" id="icon-mystery">❓</div>
+    </div>
+
+    <div class="character" id="char-guard" style="bottom:60px;left:750px" onclick="showInfo('guard')">
+      <img src="chars/guard.png" alt="保安">
+      <div class="char-name">保安 · 敬礼！</div>
+      <div class="status-icon" id="icon-guard">🛡️</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 角色面板 -->
+<div id="char-panel">
+  <span class="panel-title">👥 角色出勤</span>
+  <span style="font-size:6px;color:#a8b2d8;margin-right:8px">点击头像切换显示/隐藏</span>
+  <!-- 头像由JS动态生成 -->
+</div>
+
+<!-- 状态栏 -->
+<div id="status-bar">
+  <div class="stat-item">🏢 公司名称: <span>成步堂法律事务所</span></div>
+  <div class="stat-item">👥 在职人数: <span id="stat-count">17</span></div>
+  <div class="stat-item">☕ 今日咖啡: <span id="stat-coffee">0</span> 杯</div>
+  <div class="stat-item">💤 摸鱼指数: <span id="stat-fish">0</span>%</div>
+  <div class="stat-item">📅 工作日: <span id="stat-day">第1天</span></div>
+  <div class="stat-item" style="margin-left:auto">⚡ <span>像素风工区模拟器 v1.0</span></div>
+</div>
+
+<div id="scroll-hint">▼ 向下滚动查看茶水间和洗手间 ▼</div>
+
+<!-- 信息弹窗 -->
+<div id="info-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#16213e;border:4px solid #64ffda;padding:20px;z-index:1000;min-width:280px;max-width:360px;font-family:'Press Start 2P',monospace">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <img id="modal-img" src="" style="width:80px;height:80px;object-fit:contain;image-rendering:pixelated;border:3px solid #0f3460;background:#0f3460">
+    <div style="flex:1">
+      <div id="modal-name" style="font-size:10px;color:#e94560;margin-bottom:8px"></div>
+      <div id="modal-title" style="font-size:7px;color:#64ffda;margin-bottom:8px"></div>
+      <div id="modal-status" style="font-size:7px;color:#a8b2d8;line-height:1.8"></div>
+    </div>
+  </div>
+  <div id="modal-quote" style="margin-top:12px;font-size:7px;color:#ffd700;border-top:2px solid #0f3460;padding-top:8px;line-height:1.8"></div>
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="modal-stats"></div>
+  <button onclick="document.getElementById('info-modal').style.display='none'" style="margin-top:12px;background:#e94560;border:none;color:#fff;font-family:'Press Start 2P',monospace;font-size:7px;padding:6px 12px;cursor:pointer;width:100%">[ 关闭 ]</button>
+</div>
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999" onclick="document.getElementById('info-modal').style.display='none';document.getElementById('modal-overlay').style.display='none'"></div>
+
+<script>
+// ===== 角色数据 =====
+const characters = [
+  { slug:'naruhodou', img:'chars/naruhodou.png', name:'成步堂', title:'律师 · 成步堂法律事务所',
+    zone:'office', quote:'"绝不是在虚张声势"',
+    stats:{'职业':'辩护律师','胜率':'100%','口头禅':'异议！','发型':'刺猬头'},
+    phrases:['我有异议！','看这个！','这里有矛盾！','我绝对不会放弃！','在这里逆转思维的话……'] },
+  { slug:'mayoi', img:'chars/mayoi.png', name:'真宵', title:'灵媒见习生 · 神里家',
+    zone:'office', quote:'"还是个不成熟的灵媒"',
+    stats:{'职业':'灵媒（见习）','特技':'灵媒术','最爱':'将军超人','食量':'超大'},
+    phrases:['我饿了...','成步堂哥，晚上去吃拉面吗？','姐姐教过我！','将军超人最帅了！','这里的环境真不错啊'] },
+  { slug:'chihiro', img:'chars/chihiro.png', name:'千寻', title:'首席律师',
+    zone:'office', quote:'"证据会说话。"',
+    stats:{'职业':'首席律师','经验':'丰富','特长':'虚张声势','气场':'强大'},
+    phrases:['尝试逆转思路吧！','相信你的委托人。','这个证据很关键。','成步堂，不要慌张。','真相终会大白！'] },
+  { slug:'mitsurugi', img:'chars/mitsurugi.png', name:'御剑', title:'天才检察官 · 无败绩',
+    zone:'office', quote:'"我追求的，是完美的胜利"',
+    stats:{'职业':'竞对公司高管','胜率':'无败绩','武器':'国际象棋','外号':'不择手段的检察官'},
+    phrases:['证人，姓名和职业。','异议！','法庭上，证据就是一切。','看来你已经束手无策了。','对方不过是在虚张声势。'] },
+  { slug:'itonokogiri', img:'chars/itonokogiri.png', name:'糸锯圭介', title:'很穷……',
+    zone:'office', quote:'"交给我吧，我很擅长对泄露商业机密！"',
+    stats:{'职业':'某人的下属','搭档':'御剑','特长':'现场调查','性格':'热血'},
+    phrases:['交给我！','现场已封锁！','有新线索！','这个人就是嫌疑人！','不，不要……我只有500元了……'] },
+  { slug:'lawyer2', img:'chars/lawyer2.png', name:'不知名大叔（？）', title:'洗手间主理人',
+    zone:'office', quote:'"那么，判决是……"',
+    stats:{'职业':'洗手间扫地僧','身份':'似乎是一对兄弟？','特征':'秃头','健康水平':'疑似健忘'},
+    phrases:['......','看来我必须给你一些惩罚。','扰乱秩序！保安！','档案已销毁。','我从未存在过。'] },
+  { slug:'yahari', img:'chars/yahari.png', name:'矢张', title:'可疑的家伙',
+    zone:'kitchen', quote:'"xx子她啊，真的非常可爱……"',
+    stats:{'职业':'漫画家','友人':'成步堂&御剑','特长':'恋爱脑','实际身份':'幕后黑手（？）'},
+    phrases:['我不是可疑人员啊！','你在对本世纪最恩爱的情侣说什么啊！','小冥的鞭鞭大冒险！','……都说了，我真的只是碰巧出现在那里！','我发誓，我发誓啦！真的是亲眼看到的！'] },
+  { slug:'pink_lady', img:'chars/pink_lady.png', name:'粉色小姐', title:'似乎只是秘书',
+    zone:'kitchen', quote:'"嗯哼～"',
+    stats:{'职业':'大概是秘书','特征':'粉色❤','身材':'非常好','危险度':'❤❤❤❤❤'},
+    phrases:['嗯哼～','你在看我吗？','有什么事吗？','我只是路过❤','不告诉你～'] },
+  { slug:'ooba', img:'chars/ooba.png', name:'大场香', title:'前台',
+    zone:'kitchen', quote:'"咔哒咔哒咔哒咔哒"',
+    stats:{'职业':'什么都能做！','风格':'强硬','特长':'重力连发','推':'御剑'},
+    phrases:['咪酱~','大婶我啊年轻时候也是（以下省略500字）','不能让你们进去！','你们这些家伙啊现在的年轻人真的是（以下省略500字）','怎么了现在看到我在这里很惊讶吗大婶我啊（以下省略500字）'] },
+  { slug:'himegami', img:'chars/himegami.png', name:'姬神樱', title:'文案',
+    zone:'kitchen', quote:'"别来烦我。"',
+    stats:{'职业':'大概是文案','人气':'大概是全公司最高','电波':'完全对接不上','特技':'连着骨头一起吃掉牛排'},
+    phrases:['没事的话，可以不要来打扰我吗？','这与我无关吧。','嘘……','请保持安静。','当然是在开会，还能做什么。'] },
+  { slug:'bentou', img:'chars/bentou.png', name:'要买盒饭吗', title:'神秘小贩',
+    zone:'kitchen', quote:'"要买盒饭吗？"',
+    stats:{'职业':'大概是小贩','商品':'盒饭','出没地':'地下车库','神秘度':'★★★★★'},
+    phrases:['要买盒饭吗？','今天的特价！','新鲜出炉！','买一送一！','要尝尝我的特制盒饭吗？'] },
+  { slug:'shogun', img:'chars/shogun.png', name:'将军超人', title:'其实是皮套',
+    zone:'toilet', quote:'"大江户战士·将军超人"',
+    stats:{'类型':'机器人','能力':'超强','必杀技':'五月雨突刺','武器':'长枪'},
+    phrases:['（激昂的音乐声）','（激烈的战斗声）','认输吧！贪官魔人！','必杀技！五月雨突刺！','啊，我的枪……'] },
+  { slug:'houtsuki', img:'chars/houtsuki.png', name:'宝月巴', title:'竞对公司CEO',
+    zone:'toilet', quote:'"抱歉，我不能说。"',
+    stats:{'职业':'CEO','搭档':'？？？','性格':'冷酷（？）','无论如何也要保护的人':'茜'},
+    phrases:['抱歉，我不能回答这个问题。','小茜……'] },
+  { slug:'sayuri', img:'chars/sayuri.png', name:'小百合', title:'工位宠物',
+    zone:'toilet', quote:'"小百合，小百合~"',
+    stats:{'物种':'鹦鹉','特征':'记性很好','主人':'？？？','年龄':'15+'},
+    phrases:['小百合，小百合~','不可忘记DL-6号事件。'] },
+  { slug:'cowboy', img:'chars/cowboy.png', name:'牛仔（？）', title:'？？？',
+    zone:'toilet', quote:'"......"',
+    stats:{'职业':'大概是保安','特征':'牛仔帽','原工作':'刑警','爱好':'刮胡子'},
+    phrases:['......','（无视）'] },
+  { slug:'mystery', img:'chars/mystery.png', name:'逮捕君', title:'公司吉祥物',
+    zone:'toilet', quote:'"（欢快的音乐）"',
+    stats:{'形态':'立牌','行为':'摇晃','目的':'未知','危险度':'极高'},
+    phrases:['......','（摇晃）','（继续摇晃）','（播放音乐）','（旋转）'] },
+  { slug:'guard', img:'chars/guard.png', name:'保安', title:'大概快要被开除了',
+    zone:'toilet', quote:'"是！由我来说明"',
+    stats:{'职业':'保安','职责':'不要弄丢东西','性格':'过分元气','危机':'即将被解雇'},
+    phrases:['请出示证件！','是！','那个，好像被我弄丢了！','现在是一名保安，是也！'] }
+];
+
+// ===== 默认只显示成步堂和真宵 =====
+const visibleChars = new Set(['naruhodou', 'mayoi']);
+
+// ===== 区域配置 =====
+const ZONES = ['office', 'kitchen', 'toilet'];
+const ZONE_IDS = { office:'office-area', kitchen:'kitchen-area', toilet:'toilet-area' };
+
+// ===== 初始化 =====
+function initCharacters() {
+  characters.forEach(c => {
+    const el = document.getElementById('char-' + c.slug);
+    if (!el) return;
+    el.dataset.zone = c.zone;
+    el.style.display = visibleChars.has(c.slug) ? '' : 'none';
+    const zoneEl = document.getElementById(ZONE_IDS[c.zone]);
+    if (zoneEl && el.parentElement !== zoneEl) zoneEl.appendChild(el);
+  });
+  updateStatCount();
+  buildAvatarPanel();
+}
+
+function updateStatCount() {
+  document.getElementById('stat-count').textContent = visibleChars.size;
+}
+
+// ===== 构建头像面板 =====
+function buildAvatarPanel() {
+  const panel = document.getElementById('char-panel');
+  Array.from(panel.querySelectorAll('.char-avatar')).forEach(a => a.remove());
+  characters.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'char-avatar' + (visibleChars.has(c.slug) ? ' active' : '');
+    div.title = c.name + (visibleChars.has(c.slug) ? ' [显示中]' : ' [已隐藏]');
+    const img = document.createElement('img');
+    img.src = c.img; img.alt = c.name;
+    div.appendChild(img);
+    div.addEventListener('click', () => toggleChar(c.slug, div));
+    panel.appendChild(div);
+  });
+}
+
+// ===== 切换显示/隐藏 =====
+function toggleChar(slug, avatarEl) {
+  const el = document.getElementById('char-' + slug);
+  if (!el) return;
+  const char = characters.find(c => c.slug === slug);
+  if (visibleChars.has(slug)) {
+    visibleChars.delete(slug);
+    el.style.display = 'none';
+    avatarEl.classList.remove('active');
+    avatarEl.title = char.name + ' [已隐藏]';
+  } else {
+    visibleChars.add(slug);
+    el.style.display = '';
+    avatarEl.classList.add('active');
+    avatarEl.title = char.name + ' [显示中]';
+    setTimeout(() => scheduleAction(slug, el), 300);
+  }
+  updateStatCount();
+}
+
+// ===== 现实时钟 =====
+function updateClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent =
+    '⏰ ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ===== 游戏状态 =====
+let coffeeCount = 0, fishIndex = 0, dayCount = 1;
+setInterval(() => {
+  fishIndex = Math.min(100, fishIndex + 1);
+  document.getElementById('stat-fish').textContent = fishIndex;
+  if (fishIndex >= 100) fishIndex = 0;
+}, 3000);
+
+// ===== 对话气泡 =====
+function showPhrase(charEl, phrase) {
+  const old = charEl.querySelector('.speech-bubble');
+  if (old) old.remove();
+  const bubble = document.createElement('div');
+  bubble.className = 'speech-bubble';
+  bubble.textContent = phrase;
+  charEl.appendChild(bubble);
+  setTimeout(() => bubble.remove(), 3000);
+}
+
+// ===== 角色移动 =====
+function moveCharacter(charEl, targetX, onDone) {
+  const currentLeft = parseInt(charEl.style.left) || 0;
+  const diff = targetX - currentLeft;
+  if (Math.abs(diff) < 2) { if (onDone) onDone(); return; }
+  const dir = diff > 0 ? 1 : -1;
+  charEl.classList.add('walking');
+  charEl.style.transform = dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+  let pos = currentLeft;
+  const iv = setInterval(() => {
+    pos += dir * 1.5;
+    if ((dir > 0 && pos >= targetX) || (dir < 0 && pos <= targetX)) {
+      pos = targetX; clearInterval(iv);
+      charEl.classList.remove('walking');
+      charEl.style.transform = 'scaleX(1)';
+      if (onDone) onDone();
+    }
+    charEl.style.left = pos + 'px';
+  }, 16);
+}
+
+// ===== 跨区域传送 =====
+function teleportToZone(charEl, newZone) {
+  const zoneEl = document.getElementById(ZONE_IDS[newZone]);
+  if (!zoneEl) return;
+  charEl.dataset.zone = newZone;
+  zoneEl.appendChild(charEl);
+  charEl.style.left = (60 + Math.random() * 900) + 'px';
+  charEl.style.bottom = '60px';
+}
+
+// ===== AI行为调度 =====
+function scheduleAction(slug, charEl) {
+  if (!charEl || charEl.style.display === 'none') return;
+  const char = characters.find(c => c.slug === slug);
+  if (!char) return;
+  charEl.classList.remove('working','drinking','yawning','walking');
+
+  // 10%概率跨区域
+  if (Math.random() < 0.10) {
+    const others = ZONES.filter(z => z !== charEl.dataset.zone);
+    teleportToZone(charEl, others[Math.floor(Math.random() * others.length)]);
+    setTimeout(() => scheduleAction(slug, charEl), 1500 + Math.random() * 2000);
+    return;
+  }
+
+  const actions = ['idle','walk','talk','drink','work'];
+  const action = actions[Math.floor(Math.random() * actions.length)];
+
+  if (action === 'walk') {
+    moveCharacter(charEl, 60 + Math.random() * 1000, () => {
+      setTimeout(() => scheduleAction(slug, charEl), 800 + Math.random() * 2000);
+    });
+    return;
+  } else if (action === 'work') {
+    charEl.classList.add('working');
+    const icon = charEl.querySelector('.status-icon');
+    if (icon) icon.textContent = ['💻','⌨️','📊','📝','🖱️'][Math.floor(Math.random()*5)];
+  } else if (action === 'drink') {
+    charEl.classList.add('drinking');
+    coffeeCount++;
+    document.getElementById('stat-coffee').textContent = coffeeCount;
+    const icon = charEl.querySelector('.status-icon');
+    if (icon) icon.textContent = '☕';
+    showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);
+  } else if (action === 'talk') {
+    showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);
+    const icon = charEl.querySelector('.status-icon');
+    if (icon) icon.textContent = '💬';
+  } else {
+    if (Math.random() < 0.3) {
+      charEl.classList.add('yawning');
+      const icon = charEl.querySelector('.status-icon');
+      if (icon) icon.textContent = '😴';
+    }
+  }
+  setTimeout(() => scheduleAction(slug, charEl), 2000 + Math.random() * 4000);
+}
+
+// ===== 启动所有可见角色AI =====
+function startAllAI() {
+  characters.forEach(c => {
+    if (!visibleChars.has(c.slug)) return;
+    const el = document.getElementById('char-' + c.slug);
+    if (el) setTimeout(() => scheduleAction(c.slug, el), Math.random() * 3000);
+  });
+}
+
+// ===== 显示角色信息弹窗 =====
+function showInfo(slug) {
+  const char = characters.find(c => c.slug === slug);
+  if (!char) return;
+  document.getElementById('modal-img').src = char.img;
+  document.getElementById('modal-name').textContent = char.name;
+  document.getElementById('modal-title').textContent = char.title;
+  document.getElementById('modal-quote').textContent = char.quote;
+  const statusEl = document.getElementById('modal-status');
+  statusEl.innerHTML = '';
+  Object.entries(char.stats).forEach(([k,v]) => {
+    statusEl.innerHTML += '<div>' + k + ': <span style="color:#64ffda">' + v + '</span></div>';
+  });
+  document.getElementById('modal-stats').innerHTML =
+    '<div style="font-size:6px;color:#ffd700;border:1px solid #ffd700;padding:3px 6px">💬 "' +
+    char.phrases[Math.floor(Math.random()*char.phrases.length)] + '"</div>';
+  document.getElementById('info-modal').style.display = 'block';
+  document.getElementById('modal-overlay').style.display = 'block';
+}
+
+// ===== 随机事件 =====
+const events = [
+  { msg:'⚖️ 新案件来了！成步堂紧急出动', action:() => { const e=document.getElementById('char-naruhodou'); if(e&&e.style.display!=='none') showPhrase(e,'逆转！！！'); } },
+  { msg:'☕ 咖啡机坏了！全员崩溃', action:() => { const e=document.getElementById('char-yahari'); if(e&&e.style.display!=='none') showPhrase(e,'咖啡机坏了！！！'); } },
+  { msg:'📢 御剑宣布：今日开庭！', action:() => { const e=document.getElementById('char-mitsurugi'); if(e&&e.style.display!=='none') showPhrase(e,'我从未输过！'); } },
+  { msg:'🍱 要买盒饭吗出现了！', action:() => { const e=document.getElementById('char-bentou'); if(e&&e.style.display!=='none') showPhrase(e,'要买盒饭吗？'); } },
+  { msg:'💤 下午三点，全员犯困', action:() => {
+    document.querySelectorAll('.character').forEach(el => { if(el.style.display!=='none') el.classList.add('yawning'); });
+    setTimeout(() => document.querySelectorAll('.character').forEach(el => el.classList.remove('yawning')), 3000);
+  }},
+];
+function triggerRandomEvent() {
+  const ev = events[Math.floor(Math.random()*events.length)];
+  const notif = document.createElement('div');
+  notif.style.cssText = 'position:fixed;top:80px;right:20px;background:#0f3460;border:3px solid #e94560;color:#fff;font-family:"Press Start 2P",monospace;font-size:7px;padding:10px 14px;z-index:500;max-width:240px;line-height:1.8';
+  notif.textContent = '📣 ' + ev.msg;
+  document.body.appendChild(notif);
+  ev.action();
+  setTimeout(() => notif.remove(), 4000);
+  setTimeout(triggerRandomEvent, 8000 + Math.random()*12000);
+}
+setTimeout(triggerRandomEvent, 5000);
+
+// ===== 键盘快捷键 =====
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('info-modal').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
+  }
+});
+
+// ===== 启动 =====
+window.addEventListener('DOMContentLoaded', () => {
+  initCharacters();
+  setTimeout(startAllAI, 500);
+});
+</script>
+</body>
+</html>

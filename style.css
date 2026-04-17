@@ -1,0 +1,866 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Press Start 2P', monospace, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ===== 标题栏 ===== */
+#title-bar {
+  width: 100%;
+  background: #16213e;
+  border-bottom: 4px solid #0f3460;
+  padding: 12px 0 8px;
+  text-align: center;
+  position: relative;
+  z-index: 100;
+}
+#title-bar h1 {
+  font-size: 18px;
+  color: #e94560;
+  text-shadow: 3px 3px 0 #0f3460, -1px -1px 0 #ff6b9d;
+  letter-spacing: 2px;
+  image-rendering: pixelated;
+}
+#title-bar p {
+  font-size: 7px;
+  color: #a8b2d8;
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+#clock {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: #64ffda;
+  background: #0f3460;
+  padding: 4px 8px;
+  border: 2px solid #64ffda;
+}
+
+/* ===== 主场景容器 ===== */
+#game-world {
+  width: 1200px;
+  max-width: 100vw;
+  position: relative;
+  margin-top: 10px;
+}
+
+/* ===== 楼层标签 ===== */
+.floor-label {
+  font-size: 8px;
+  color: #64ffda;
+  background: #0f3460;
+  border: 2px solid #64ffda;
+  padding: 3px 8px;
+  display: inline-block;
+  margin: 4px 0 0 8px;
+}
+
+/* ===== 场景区域通用 ===== */
+.scene {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #0f3460;
+  margin-bottom: 0;
+}
+
+/* ===== 工位区 ===== */
+#office-area {
+  height: 340px;
+  background: #e8e0d0;
+}
+
+/* 地板 */
+.floor-tiles {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: repeating-linear-gradient(
+    90deg,
+    #c8bfa8 0px, #c8bfa8 39px,
+    #b8af98 39px, #b8af98 40px
+  );
+  border-top: 3px solid #a09080;
+}
+
+/* 天花板 */
+.ceiling {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: #d0c8b8;
+  border-bottom: 3px solid #b0a898;
+}
+
+/* 墙壁 */
+.wall {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  bottom: 60px;
+  background: #f0ebe0;
+}
+
+/* 窗户 */
+.window-pixel {
+  position: absolute;
+  top: 30px;
+  width: 80px;
+  height: 70px;
+  background: #87ceeb;
+  border: 4px solid #8b7355;
+  image-rendering: pixelated;
+}
+.window-pixel::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 3px;
+  background: #8b7355;
+}
+.window-pixel::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 3px;
+  background: #8b7355;
+}
+.window-pixel .sun {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  background: #ffd700;
+  box-shadow: 0 0 0 3px #ffd700;
+}
+
+/* 工位桌子 */
+.desk {
+  position: absolute;
+  bottom: 60px;
+  width: 120px;
+  height: 50px;
+  background: #8b6914;
+  border-top: 6px solid #a07820;
+  border-left: 4px solid #6b5010;
+  border-right: 4px solid #6b5010;
+}
+.desk::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 10px;
+  right: 10px;
+  height: 20px;
+  background: #6b5010;
+}
+
+/* 电脑显示器 */
+.monitor {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 36px;
+  background: #222;
+  border: 3px solid #444;
+}
+.monitor-screen {
+  position: absolute;
+  top: 3px; left: 3px; right: 3px; bottom: 3px;
+  background: #001a33;
+  overflow: hidden;
+}
+.monitor-screen::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 2px;
+  width: 60%;
+  height: 3px;
+  background: #00ff41;
+  box-shadow: 0 6px 0 #00ff41, 0 12px 0 rgba(0,255,65,0.5);
+  animation: blink-code 2s infinite;
+}
+@keyframes blink-code {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.monitor-stand {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 8px;
+  background: #444;
+}
+
+/* 椅子 */
+.chair {
+  position: absolute;
+  bottom: 60px;
+  width: 40px;
+  height: 40px;
+}
+.chair-back {
+  position: absolute;
+  top: 0;
+  left: 5px;
+  width: 30px;
+  height: 22px;
+  background: #2c5f8a;
+  border: 2px solid #1a3f5c;
+  border-radius: 2px 2px 0 0;
+}
+.chair-seat {
+  position: absolute;
+  top: 20px;
+  left: 2px;
+  width: 36px;
+  height: 12px;
+  background: #2c5f8a;
+  border: 2px solid #1a3f5c;
+}
+.chair-leg {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 10px;
+  background: #888;
+}
+
+/* 咖啡杯 */
+.coffee-cup {
+  position: absolute;
+  width: 14px;
+  height: 12px;
+  background: #fff;
+  border: 2px solid #888;
+}
+.coffee-cup::before {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px; right: 2px;
+  height: 4px;
+  background: #6b3a2a;
+}
+.coffee-cup::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 2px;
+  width: 5px;
+  height: 6px;
+  border: 2px solid #888;
+  border-left: none;
+  border-radius: 0 3px 3px 0;
+}
+
+/* 文件堆 */
+.papers {
+  position: absolute;
+  width: 30px;
+  height: 4px;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 -3px 0 #f5f5f5, 0 -6px 0 #efefef;
+}
+
+/* ===== 茶水间 ===== */
+#kitchen-area {
+  height: 260px;
+  background: #e0f0e8;
+  border-top: 4px solid #0f3460;
+}
+
+.kitchen-wall {
+  position: absolute;
+  top: 20px; left: 0; right: 0; bottom: 60px;
+  background: #f0f8f0;
+}
+
+/* 瓷砖墙 */
+.tile-wall {
+  position: absolute;
+  top: 20px; left: 0; right: 0;
+  height: 100px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0, transparent 29px, #c8e0c8 29px, #c8e0c8 30px),
+    repeating-linear-gradient(0deg, transparent 0, transparent 29px, #c8e0c8 29px, #c8e0c8 30px);
+  background-color: #e8f5e8;
+}
+
+/* 橱柜 */
+.cabinet {
+  position: absolute;
+  bottom: 60px;
+  height: 80px;
+  background: #8fbc8f;
+  border-top: 6px solid #6a9a6a;
+  border-left: 3px solid #5a8a5a;
+  border-right: 3px solid #5a8a5a;
+}
+.cabinet-door {
+  position: absolute;
+  top: 8px;
+  width: 44%;
+  height: 55px;
+  background: #7aad7a;
+  border: 2px solid #5a8a5a;
+}
+.cabinet-door:first-child { left: 4%; }
+.cabinet-door:last-child { right: 4%; }
+.cabinet-handle {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 4px;
+  height: 12px;
+  background: #c8a850;
+  transform: translateY(-50%);
+}
+
+/* 咖啡机 */
+.coffee-machine {
+  position: absolute;
+  bottom: 60px;
+  width: 50px;
+  height: 70px;
+  background: #333;
+  border: 3px solid #555;
+}
+.coffee-machine-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 20px;
+  background: #444;
+  border-bottom: 2px solid #222;
+}
+.coffee-machine-light {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: #00ff00;
+  animation: blink 1.5s infinite;
+}
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.coffee-machine-cup {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 14px;
+  background: #fff;
+  border: 2px solid #888;
+}
+
+/* 微波炉 */
+.microwave {
+  position: absolute;
+  bottom: 60px;
+  width: 70px;
+  height: 50px;
+  background: #e8e8e8;
+  border: 3px solid #aaa;
+}
+.microwave-door {
+  position: absolute;
+  top: 5px; left: 5px;
+  width: 42px;
+  height: 36px;
+  background: #222;
+  border: 2px solid #555;
+}
+.microwave-panel {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 14px;
+  height: 36px;
+  background: #ccc;
+}
+.microwave-btn {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #e94560;
+  left: 3px;
+}
+
+/* 冰箱 */
+.fridge {
+  position: absolute;
+  bottom: 60px;
+  width: 60px;
+  height: 110px;
+  background: #f0f0f0;
+  border: 3px solid #ccc;
+}
+.fridge-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40px;
+  background: #e8e8e8;
+  border-bottom: 2px solid #ccc;
+}
+.fridge-handle {
+  position: absolute;
+  right: 6px;
+  width: 4px;
+  height: 20px;
+  background: #aaa;
+  border-radius: 2px;
+}
+
+/* ===== 厕所区 ===== */
+#toilet-area {
+  height: 240px;
+  background: #e8eef5;
+  border-top: 4px solid #0f3460;
+}
+
+.toilet-wall {
+  position: absolute;
+  top: 20px; left: 0; right: 0; bottom: 60px;
+  background: #f5f8ff;
+}
+
+/* 白色瓷砖 */
+.white-tiles {
+  position: absolute;
+  top: 20px; left: 0; right: 0;
+  height: 80px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0, transparent 19px, #d0d8e8 19px, #d0d8e8 20px),
+    repeating-linear-gradient(0deg, transparent 0, transparent 19px, #d0d8e8 19px, #d0d8e8 20px);
+  background-color: #f0f4ff;
+}
+
+/* 马桶隔间 */
+.toilet-stall {
+  position: absolute;
+  bottom: 60px;
+  width: 80px;
+  height: 130px;
+  border-left: 6px solid #8899aa;
+  border-right: 6px solid #8899aa;
+  border-top: 6px solid #8899aa;
+  background: rgba(200,210,230,0.3);
+}
+.stall-door {
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 0;
+  height: 90px;
+  background: #b0c0d0;
+  border: 3px solid #8899aa;
+}
+.stall-door-handle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 4px;
+  height: 16px;
+  background: #c8a850;
+  transform: translateY(-50%);
+}
+
+/* 马桶 */
+.toilet {
+  position: absolute;
+  bottom: 60px;
+  width: 36px;
+  height: 44px;
+}
+.toilet-tank {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 28px;
+  height: 18px;
+  background: #e8e8e8;
+  border: 2px solid #ccc;
+}
+.toilet-bowl {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 36px;
+  height: 28px;
+  background: #e8e8e8;
+  border: 2px solid #ccc;
+  border-radius: 0 0 8px 8px;
+}
+
+/* 洗手台 */
+.sink {
+  position: absolute;
+  bottom: 60px;
+  width: 50px;
+  height: 36px;
+  background: #e8e8e8;
+  border: 3px solid #ccc;
+  border-radius: 0 0 6px 6px;
+}
+.sink-faucet {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 12px;
+  background: #aaa;
+}
+.sink-faucet::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -6px;
+  width: 18px;
+  height: 4px;
+  background: #aaa;
+}
+
+/* 镜子 */
+.mirror {
+  position: absolute;
+  width: 50px;
+  height: 60px;
+  background: linear-gradient(135deg, #e8f0ff 0%, #c8d8f0 50%, #e0e8ff 100%);
+  border: 4px solid #8899aa;
+}
+.mirror::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 4px;
+  width: 12px;
+  height: 8px;
+  background: rgba(255,255,255,0.6);
+}
+
+/* ===== 角色通用样式 ===== */
+.character {
+  position: absolute;
+  width: auto;
+  height: 80px;
+  cursor: pointer;
+  z-index: 10;
+  transition: none;
+  image-rendering: pixelated;
+}
+.character img {
+  width: auto;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+.character:hover {
+  filter: brightness(1.2);
+}
+
+/* 角色名字气泡 */
+.char-name {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f3460;
+  color: #64ffda;
+  font-size: 5px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  border: 1px solid #64ffda;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.character:hover .char-name { opacity: 1; }
+
+/* 对话气泡 */
+.speech-bubble {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 2px solid #333;
+  padding: 4px 6px;
+  font-size: 6px;
+  color: #333;
+  white-space: nowrap;
+  z-index: 20;
+  pointer-events: none;
+  max-width: 120px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.4;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: -2px;
+  border: 5px solid transparent;
+  border-top-color: #fff;
+  z-index: 1;
+}
+
+/* 状态图标 */
+.status-icon {
+  position: absolute;
+  top: -16px;
+  right: -4px;
+  font-size: 12px;
+  z-index: 15;
+  animation: float 1s ease-in-out infinite alternate;
+}
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+
+/* 走路动画 */
+@keyframes walk-bounce {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  50% { transform: translateY(-3px) scaleX(1); }
+}
+.walking {
+  animation: walk-bounce 0.4s steps(2) infinite;
+}
+.walking-left {
+  animation: walk-bounce 0.4s steps(2) infinite;
+  transform: scaleX(-1);
+}
+
+/* 工作动画 */
+@keyframes work-nod {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.working {
+  animation: work-nod 1s ease-in-out infinite;
+}
+
+/* 喝咖啡动画 */
+@keyframes drink {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-15deg); }
+  60% { transform: rotate(-15deg); }
+}
+.drinking {
+  animation: drink 2s ease-in-out infinite;
+}
+
+/* ===== 底部状态栏 ===== */
+#status-bar {
+  width: 1200px;
+  max-width: 100vw;
+  background: #16213e;
+  border-top: 3px solid #0f3460;
+  padding: 8px 16px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.stat-item {
+  font-size: 7px;
+  color: #a8b2d8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-item span { color: #64ffda; }
+
+/* ===== 角色面板 ===== */
+#char-panel {
+  width: 1200px;
+  max-width: 100vw;
+  background: #16213e;
+  border-top: 3px solid #0f3460;
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+#char-panel .panel-title {
+  font-size: 7px;
+  color: #e94560;
+  margin-right: 4px;
+}
+.char-avatar {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #0f3460;
+  cursor: pointer;
+  image-rendering: pixelated;
+  transition: border-color 0.2s;
+  background: #0f3460;
+}
+.char-avatar:hover { border-color: #64ffda; }
+.char-avatar.active { border-color: #e94560; }
+.char-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* ===== 装饰元素 ===== */
+.plant {
+  position: absolute;
+  bottom: 60px;
+  width: 28px;
+  height: 40px;
+}
+.plant-pot {
+  position: absolute;
+  bottom: 0;
+  left: 4px;
+  width: 20px;
+  height: 14px;
+  background: #c87941;
+  border: 2px solid #a05a28;
+}
+.plant-stem {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 4px;
+  height: 16px;
+  background: #4a8a3a;
+}
+.plant-leaf {
+  position: absolute;
+  width: 14px;
+  height: 10px;
+  background: #5aaa4a;
+  border-radius: 50%;
+}
+
+/* 告示牌 */
+.sign {
+  position: absolute;
+  background: #ffd700;
+  border: 3px solid #b8860b;
+  padding: 4px 8px;
+  font-size: 6px;
+  color: #333;
+  z-index: 5;
+}
+
+/* 区域标题 */
+.area-sign {
+  position: absolute;
+  top: 24px;
+  right: 12px;
+  background: #0f3460;
+  color: #64ffda;
+  font-size: 7px;
+  padding: 3px 8px;
+  border: 2px solid #64ffda;
+  z-index: 5;
+}
+
+/* 鹦鹉特殊动画 */
+@keyframes parrot-bob {
+  0%, 100% { transform: rotate(-5deg) translateY(0); }
+  50% { transform: rotate(5deg) translateY(-4px); }
+}
+.parrot-anim {
+  animation: parrot-bob 0.8s ease-in-out infinite;
+}
+
+/* 打哈欠动画 */
+@keyframes yawn {
+  0%, 80%, 100% { transform: scale(1); }
+  40% { transform: scale(1.05) translateY(-2px); }
+}
+.yawning { animation: yawn 3s ease-in-out infinite; }
+
+/* 睡觉 zzz */
+@keyframes zzz-float {
+  0% { opacity: 0; transform: translate(0,0) scale(0.5); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translate(10px,-20px) scale(1); }
+}
+.zzz {
+  position: absolute;
+  top: -10px;
+  right: 0;
+  font-size: 10px;
+  color: #64ffda;
+  font-family: monospace;
+  animation: zzz-float 2s ease-out infinite;
+  pointer-events: none;
+}
+.zzz:nth-child(2) { animation-delay: 0.7s; font-size: 8px; }
+.zzz:nth-child(3) { animation-delay: 1.4s; font-size: 6px; }
+
+/* 进度条（摸鱼值） */
+.fish-bar {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #333;
+}
+.fish-fill {
+  height: 100%;
+  background: #e94560;
+  transition: width 0.5s;
+}
+
+/* 滚动提示 */
+#scroll-hint {
+  font-size: 7px;
+  color: #a8b2d8;
+  text-align: center;
+  padding: 6px;
+  background: #16213e;
+  width: 1200px;
+  max-width: 100vw;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

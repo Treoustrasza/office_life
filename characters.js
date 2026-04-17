@@ -194,27 +194,6 @@ const characters = [
     ],
   },
   {
-    slug: 'himegami',
-    img: 'chars/himegami.png',
-    name: '姬神樱',
-    title: '灵媒师 · 神绪家本家',
-    zone: 'kitchen',
-    quote: '"神灵指引我。"',
-    stats: {
-      '职业': '灵媒师',
-      '流派': '神绪流',
-      '特长': '灵媒术',
-      '气质': '神秘',
-    },
-    phrases: [
-      '神灵指引我。',
-      '我感应到了...',
-      '灵力充沛。',
-      '请保持安静。',
-      '仪式开始。',
-    ],
-  },
-  {
     slug: 'bentou',
     img: 'chars/bentou.png',
     name: '要买盒饭吗',

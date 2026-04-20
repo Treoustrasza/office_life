@@ -322,6 +322,8 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.getElementById('info-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
+    const mp = document.getElementById('music-panel');
+    if (mp && mp.style.display !== 'none') toggleMusicPanel();
   }
 });
 
@@ -329,4 +331,126 @@ document.addEventListener('keydown', e => {
 window.addEventListener('DOMContentLoaded', () => {
   initCharacters();
   setTimeout(startAllAI, 500);
+  initMusicPlayer();
 });
+
+// ============================================================
+//  BGM 播放器
+// ============================================================
+
+const BGM_BASE = 'bgm/8bit/《逆转裁判123：成步堂精选集》原声音乐带-p';
+const BGM_EXT  = '-16.ogg';
+const TRACKS = Array.from({ length: 24 }, (_, i) => ({
+  title: 'Track ' + String(i + 1).padStart(2, '0'),
+  file: BGM_BASE + String(i + 1).padStart(2, '0') + BGM_EXT,
+}));
+
+let currentTrack = 0;
+let isPlaying = false;
+let audio = null;
+
+function initMusicPlayer() {
+  audio = new Audio();
+  audio.volume = 0.6;
+  audio.addEventListener('ended', () => nextTrack());
+  audio.addEventListener('error', () => {
+    setTimeout(() => nextTrack(), 500);
+  });
+  buildTrackList();
+}
+
+function buildTrackList() {
+  const list = document.getElementById('music-tracklist');
+  if (!list) return;
+  list.innerHTML = '';
+  TRACKS.forEach((t, i) => {
+    const item = document.createElement('div');
+    item.className = 'track-item' + (i === currentTrack ? ' active' : '');
+    item.id = 'track-' + i;
+    item.innerHTML = '<span class="track-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                     '<span class="track-name">' + t.title + '</span>';
+    item.addEventListener('click', () => playTrack(i));
+    list.appendChild(item);
+  });
+}
+
+function playTrack(index) {
+  currentTrack = index;
+  const track = TRACKS[currentTrack];
+  audio.src = track.file;
+  audio.play().then(() => {
+    isPlaying = true;
+    updatePlayerUI();
+  }).catch(() => {
+    isPlaying = false;
+    updatePlayerUI();
+  });
+}
+
+function togglePlay() {
+  if (!audio) return;
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+  } else {
+    if (!audio.src || audio.src === window.location.href) {
+      playTrack(currentTrack);
+      return;
+    }
+    audio.play().then(() => { isPlaying = true; updatePlayerUI(); }).catch(() => {});
+  }
+  updatePlayerUI();
+}
+
+function nextTrack() {
+  currentTrack = (currentTrack + 1) % TRACKS.length;
+  playTrack(currentTrack);
+}
+
+function prevTrack() {
+  currentTrack = (currentTrack - 1 + TRACKS.length) % TRACKS.length;
+  playTrack(currentTrack);
+}
+
+function setVolume(val) {
+  if (audio) audio.volume = val / 100;
+  const numEl = document.getElementById('music-vol-num');
+  if (numEl) numEl.textContent = val;
+}
+
+function updatePlayerUI() {
+  const btn = document.getElementById('music-play-btn');
+  if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
+
+  const vinyl = document.getElementById('music-vinyl');
+  if (vinyl) {
+    if (isPlaying) vinyl.classList.add('spinning');
+    else vinyl.classList.remove('spinning');
+  }
+
+  const titleEl = document.getElementById('music-title');
+  if (titleEl) titleEl.textContent = TRACKS[currentTrack].title;
+
+  const screenEl = document.getElementById('player-screen-text');
+  if (screenEl) screenEl.textContent = isPlaying ? '♪ ' + TRACKS[currentTrack].title.slice(0, 6) : '♪ BGM';
+
+  const bigBtn = document.getElementById('player-btn-big');
+  if (bigBtn) bigBtn.style.background = isPlaying ? '#e94560' : '#64ffda';
+
+  document.querySelectorAll('.track-item').forEach((el, i) => {
+    el.classList.toggle('active', i === currentTrack);
+  });
+}
+
+function toggleMusicPanel() {
+  const panel = document.getElementById('music-panel');
+  const overlay = document.getElementById('music-overlay');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  overlay.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    buildTrackList();
+    updatePlayerUI();
+  }
+}

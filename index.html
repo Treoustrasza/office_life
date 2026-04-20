@@ -92,6 +92,27 @@
       <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
     </div>
 
+    <!-- 像素风音乐播放器 -->
+    <div class="pixel-player" id="pixel-player" onclick="toggleMusicPanel()" title="点击打开音乐播放器">
+      <div class="player-body">
+        <div class="player-screen">
+          <div class="player-screen-text" id="player-screen-text">♪ BGM</div>
+        </div>
+        <div class="player-buttons">
+          <div class="player-btn"></div>
+          <div class="player-btn player-btn-big" id="player-btn-big"></div>
+          <div class="player-btn"></div>
+        </div>
+        <div class="player-speaker">
+          <div class="speaker-dot"></div>
+          <div class="speaker-dot"></div>
+          <div class="speaker-dot"></div>
+          <div class="speaker-dot"></div>
+        </div>
+      </div>
+      <div class="player-label">♫ MUSIC</div>
+    </div>
+
     <!-- 植物装饰 -->
     <div class="plant" style="left:20px">
       <div class="plant-stem"></div>
@@ -364,6 +385,37 @@
   <button onclick="document.getElementById('info-modal').style.display='none';document.getElementById('modal-overlay').style.display='none'" style="margin-top:12px;background:#e94560;border:none;color:#fff;font-family:'Noto Sans SC',monospace;font-size:10px;padding:6px 12px;cursor:pointer;width:100%">[ 关闭 ]</button>
 </div>
 <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999" onclick="document.getElementById('info-modal').style.display='none';document.getElementById('modal-overlay').style.display='none'"></div>
+
+<!-- 音乐播放器弹窗 -->
+<div id="music-panel" style="display:none">
+  <div class="music-panel-header">
+    <span>🎵 BGM 播放器</span>
+    <button class="music-close-btn" onclick="toggleMusicPanel()">✕</button>
+  </div>
+  <div class="music-now-playing">
+    <div class="music-vinyl" id="music-vinyl">
+      <div class="vinyl-center"></div>
+    </div>
+    <div class="music-info">
+      <div class="music-title" id="music-title">-- 未播放 --</div>
+      <div class="music-source" id="music-source">逆转裁判 OST</div>
+      <div class="music-controls">
+        <button class="music-ctrl-btn" onclick="prevTrack()" title="上一首">◀◀</button>
+        <button class="music-ctrl-btn music-play-btn" id="music-play-btn" onclick="togglePlay()">▶</button>
+        <button class="music-ctrl-btn" onclick="nextTrack()" title="下一首">▶▶</button>
+      </div>
+      <div class="music-volume-row">
+        <span class="music-vol-icon">🔊</span>
+        <input type="range" class="music-volume" id="music-volume" min="0" max="100" value="60" oninput="setVolume(this.value)">
+        <span class="music-vol-num" id="music-vol-num">60</span>
+      </div>
+    </div>
+  </div>
+  <div class="music-tracklist" id="music-tracklist">
+    <!-- 曲目列表由JS动态生成 -->
+  </div>
+</div>
+<div id="music-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1099" onclick="toggleMusicPanel()"></div>
 
 <!-- 先加载角色数据，再加载逻辑 -->
 <script src="characters.js"></script>

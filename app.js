@@ -383,7 +383,15 @@ function initMusicPlayer() {
     setTimeout(() => nextTrack(), 500);
   });
   buildTrackList();
-  // 页面加载后自动播放第一首
+}
+
+// ===== 开始引导：点击蒙层后触发 =====
+function startGame() {
+  const overlay = document.getElementById('start-overlay');
+  if (!overlay) return;
+  overlay.classList.add('fade-out');
+  overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+  // 用户交互后播放，绕过浏览器自动播放限制
   playTrack(0);
 }
 

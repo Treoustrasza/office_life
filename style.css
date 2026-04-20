@@ -1118,3 +1118,55 @@ body {
   min-width: 16px;
 }
 .track-name { flex: 1; }
+
+/* ============================================================
+   开始引导蒙层
+   ============================================================ */
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  background: #1a1a2e;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#start-overlay.fade-out {
+  animation: overlay-fade 0.6s ease forwards;
+}
+@keyframes overlay-fade {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+
+#start-box {
+  text-align: center;
+  user-select: none;
+}
+#start-title {
+  font-family: 'ZCOOL KuaiLe', 'Press Start 2P', monospace;
+  font-size: 32px;
+  color: #e94560;
+  text-shadow: 2px 2px 0 #0f3460, -2px -2px 0 #ff6b9d;
+  margin-bottom: 40px;
+  letter-spacing: 4px;
+}
+#start-blink {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #64ffda;
+  letter-spacing: 3px;
+  animation: blink-start 1s steps(1) infinite;
+  margin-bottom: 16px;
+}
+@keyframes blink-start {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+#start-sub {
+  font-family: 'ZCOOL KuaiLe', monospace;
+  font-size: 14px;
+  color: #a8b2d8;
+  letter-spacing: 2px;
+}

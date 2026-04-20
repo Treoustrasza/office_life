@@ -383,6 +383,8 @@ function initMusicPlayer() {
     setTimeout(() => nextTrack(), 500);
   });
   buildTrackList();
+  // 页面加载后自动播放第一首
+  playTrack(0);
 }
 
 function buildTrackList() {

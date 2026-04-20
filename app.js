@@ -18,7 +18,7 @@ function updateClock() {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
   document.getElementById('clock').textContent =
-    '⏰ ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+   + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 }
 updateClock();
 setInterval(updateClock, 1000);
@@ -125,7 +125,7 @@ function teleportToZone(charEl, newZone) {
   charEl.dataset.zone = newZone;
   zoneEl.appendChild(charEl);
   charEl.style.left = (60 + Math.random() * 900) + 'px';
-  charEl.style.bottom = '60px';
+  charEl.style.bottom = '40px';
 }
 
 // ===== AI 行为调度 =====
@@ -199,7 +199,7 @@ function showInfo(slug) {
     statusEl.innerHTML += '<div>' + k + ': <span style="color:#64ffda">' + v + '</span></div>';
   });
   document.getElementById('modal-stats').innerHTML =
-    '<div style="font-size:6px;color:#ffd700;border:1px solid #ffd700;padding:3px 6px">💬 "' +
+    '<div style="font-size:15px;color:#ffd700;border:1px solid #ffd700;padding:3px 6px;">💬 "' +
     char.phrases[Math.floor(Math.random() * char.phrases.length)] + '"</div>';
   document.getElementById('info-modal').style.display = 'block';
   document.getElementById('modal-overlay').style.display = 'block';
@@ -304,11 +304,12 @@ const events = [
   },
 ];
 
+// ===== 随机事件触发 =====
 function triggerRandomEvent() {
   const ev = events[Math.floor(Math.random() * events.length)];
   const notif = document.createElement('div');
-  notif.style.cssText = 'position:fixed;top:80px;right:20px;background:#0f3460;border:3px solid #e94560;color:#fff;font-family:"Press Start 2P",monospace;font-size:7px;padding:10px 14px;z-index:500;max-width:240px;line-height:1.8';
-  notif.textContent = '📣 ' + ev.msg;
+  notif.style.cssText = 'position:fixed;top:100px;right:15px;background:#0f3460;border:2px solid #e94560;color:#fff;font-family:"ZCOOL KuaiLe",monospace;font-size:14px;padding:10px 14px;z-index:500;max-width:320px;line-height:1.8';
+  notif.textContent = ev.msg;
   document.body.appendChild(notif);
   ev.action();
   setTimeout(() => notif.remove(), 4000);

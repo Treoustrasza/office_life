@@ -19,7 +19,7 @@
 <div id="game-world">
 
   <!-- ===== 工位区 ===== -->
-  <div class="floor-label">📋 工位区 · OFFICE FLOOR</div>
+  <div class="floor-label">📋 工位区</div>
   <div class="scene" id="office-area">
     <div class="ceiling"></div>
     <div class="wall"></div>
@@ -34,19 +34,19 @@
     <div class="area-sign">OFFICE ZONE</div>
 
     <!-- 告示牌 -->
-    <div class="sign" style="top:28px; left:340px">📌 今日KPI: 活着</div>
+    <div class="sign" style="top:28px; left:340px">📌 今日目标：活着</div>
     <div class="sign" style="top:28px; left:600px">⚠️ 禁止摸鱼</div>
 
-    <!-- 工位1 -->
+<!-- 工位1 -->
     <div class="desk" style="left:80px">
       <div class="monitor">
         <div class="monitor-screen"></div>
         <div class="monitor-stand"></div>
       </div>
-      <div class="coffee-cup" style="position:absolute;bottom:8px;right:8px"></div>
-      <div class="papers" style="position:absolute;bottom:8px;left:8px"></div>
+      <div class="coffee-cup" style="position:absolute;bottom:48px;right:8px"></div>
+      <div class="papers" style="position:absolute;bottom:46px;left:8px"></div>
     </div>
-    <div class="chair" style="left:100px">
+    <div class="chair" style="left:120px">
       <div class="chair-back"></div>
       <div class="chair-seat"></div>
       <div class="chair-leg" style="left:4px"></div>
@@ -56,7 +56,7 @@
     <!-- 工位2 -->
     <div class="desk" style="left:260px">
       <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
-      <div class="coffee-cup" style="position:absolute;bottom:8px;right:8px"></div>
+      <div class="coffee-cup" style="position:absolute;bottom:48px;right:8px"></div>
     </div>
     <div class="chair" style="left:280px">
       <div class="chair-back"></div><div class="chair-seat"></div>
@@ -66,9 +66,9 @@
     <!-- 工位3 -->
     <div class="desk" style="left:440px">
       <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
-      <div class="papers" style="position:absolute;bottom:8px;left:8px"></div>
+      <div class="papers" style="position:absolute;bottom:46px;left:8px"></div>
     </div>
-    <div class="chair" style="left:460px">
+    <div class="chair" style="left:500px">
       <div class="chair-back"></div><div class="chair-seat"></div>
       <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
     </div>
@@ -76,9 +76,9 @@
     <!-- 工位4 -->
     <div class="desk" style="left:620px">
       <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
-      <div class="coffee-cup" style="position:absolute;bottom:8px;left:8px"></div>
+      <div class="coffee-cup" style="position:absolute;bottom:48px;left:8px"></div>
     </div>
-    <div class="chair" style="left:640px">
+    <div class="chair" style="left:680px">
       <div class="chair-back"></div><div class="chair-seat"></div>
       <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
     </div>
@@ -87,7 +87,7 @@
     <div class="desk" style="left:800px">
       <div class="monitor"><div class="monitor-screen"></div><div class="monitor-stand"></div></div>
     </div>
-    <div class="chair" style="left:820px">
+    <div class="chair" style="left:840px">
       <div class="chair-back"></div><div class="chair-seat"></div>
       <div class="chair-leg" style="left:4px"></div><div class="chair-leg" style="right:4px"></div>
     </div>
@@ -110,37 +110,37 @@
     <div class="floor-tiles"></div>
 
     <!-- 角色们 (office) -->
-    <div class="character" id="char-naruhodou" style="bottom:60px;left:100px" onclick="showInfo('naruhodou')">
+    <div class="character" id="char-naruhodou" style="bottom:40px;left:100px" onclick="showInfo('naruhodou')">
       <img src="chars/naruhodou.png" alt="成步堂">
       <div class="char-name">成步堂 · 律师</div>
       <div class="status-icon" id="icon-naruhodou">⚖️</div>
     </div>
 
-    <div class="character" id="char-mayoi" style="bottom:60px;left:280px" onclick="showInfo('mayoi')">
+    <div class="character" id="char-mayoi" style="bottom:40px;left:280px" onclick="showInfo('mayoi')">
       <img src="chars/mayoi.png" alt="真宵">
       <div class="char-name">真宵 · 灵媒（见习）</div>
       <div class="status-icon" id="icon-mayoi">👻</div>
     </div>
 
-    <div class="character" id="char-chihiro" style="bottom:60px;left:460px" onclick="showInfo('chihiro')">
+    <div class="character" id="char-chihiro" style="bottom:40px;left:460px" onclick="showInfo('chihiro')">
       <img src="chars/chihiro.png" alt="千寻">
       <div class="char-name">千寻 · 老板</div>
       <div class="status-icon" id="icon-chihiro">📁</div>
     </div>
 
-    <div class="character" id="char-mitsurugi" style="bottom:60px;left:640px" onclick="showInfo('mitsurugi')">
+    <div class="character" id="char-mitsurugi" style="bottom:40px;left:640px" onclick="showInfo('mitsurugi')">
       <img src="chars/mitsurugi.png" alt="御剑">
       <div class="char-name">御剑 · 竞对高管</div>
       <div class="status-icon" id="icon-mitsurugi">🗡️</div>
     </div>
 
-    <div class="character" id="char-itonokogiri" style="bottom:60px;left:820px" onclick="showInfo('itonokogiri')">
+    <div class="character" id="char-itonokogiri" style="bottom:40px;left:820px" onclick="showInfo('itonokogiri')">
       <img src="chars/itonokogiri.png" alt="糸锯">
       <div class="char-name">糸锯 · 没有钱</div>
       <div class="status-icon" id="icon-itonokogiri">🔍</div>
     </div>
 
-    <div class="character" id="char-lawyer2" style="bottom:60px;left:980px" onclick="showInfo('lawyer2')">
+    <div class="character" id="char-lawyer2" style="bottom:40px;left:980px" onclick="showInfo('lawyer2')">
       <img src="chars/lawyer2.png" alt="法务">
       <div class="char-name">法务（？） · 洗手间主理人</div>
       <div class="status-icon" id="icon-lawyer2">📋</div>
@@ -149,7 +149,7 @@
   </div>
 
   <!-- ===== 茶水间 ===== -->
-  <div class="floor-label">☕ 茶水间 · BREAK ROOM</div>
+  <div class="floor-label">☕ 茶水间</div>
   <div class="scene" id="kitchen-area">
     <div class="ceiling"></div>
     <div class="tile-wall"></div>
@@ -209,25 +209,25 @@
     <div class="floor-tiles"></div>
 
     <!-- 茶水间角色 -->
-    <div class="character" id="char-yahari" style="bottom:60px;left:180px" onclick="showInfo('yahari')">
+    <div class="character" id="char-yahari" style="bottom:40px;left:180px" onclick="showInfo('yahari')">
       <img src="chars/yahari.png" alt="矢张">
       <div class="char-name">矢张 · 幕后黑手</div>
       <div class="status-icon" id="icon-yahari">🚔</div>
     </div>
 
-    <div class="character" id="char-pink_lady" style="bottom:60px;left:420px" onclick="showInfo('pink_lady')">
+    <div class="character" id="char-pink_lady" style="bottom:40px;left:420px" onclick="showInfo('pink_lady')">
       <img src="chars/pink_lady.png" alt="粉色小姐">
       <div class="char-name">粉色小姐 · 只是秘书</div>
       <div class="status-icon" id="icon-pink_lady">🌸</div>
     </div>
 
-    <div class="character" id="char-ooba" style="bottom:60px;left:660px" onclick="showInfo('ooba')">
+    <div class="character" id="char-ooba" style="bottom:40px;left:660px" onclick="showInfo('ooba')">
       <img src="chars/ooba.png" alt="大场香">
       <div class="char-name">大场香 · 前台</div>
       <div class="status-icon" id="icon-ooba">⚖️</div>
     </div>
 
-    <div class="character" id="char-bentou" style="bottom:60px;left:1060px" onclick="showInfo('bentou')">
+    <div class="character" id="char-bentou" style="bottom:40px;left:1060px" onclick="showInfo('bentou')">
       <img src="chars/bentou.png" alt="要买盒饭吗">
       <div class="char-name">要买盒饭吗 · 小贩（？）</div>
       <div class="status-icon" id="icon-bentou">🍱</div>
@@ -236,7 +236,7 @@
   </div>
 
   <!-- ===== 厕所区 ===== -->
-  <div class="floor-label">🚻 洗手间 · RESTROOM</div>
+  <div class="floor-label">🚻 洗手间</div>
   <div class="scene" id="toilet-area">
     <div class="ceiling"></div>
     <div class="white-tiles"></div>
@@ -285,43 +285,43 @@
 
     <!-- 告示牌 -->
     <div class="sign" style="top:28px;left:800px">📱 如厕请勿玩手机</div>
-    <div class="sign" style="top:28px;left:400px">🚿 用后请冲水</div>
+    <div class="sign" style="top:28px;left:175px">🚿 用后请冲水</div>
 
     <!-- 地板 -->
     <div class="floor-tiles" style="background:repeating-linear-gradient(90deg,#d0d8e8 0px,#d0d8e8 39px,#c0c8d8 39px,#c0c8d8 40px)"></div>
 
     <!-- 洗手间角色 -->
-    <div class="character" id="char-shogun" style="bottom:60px;left:200px" onclick="showInfo('shogun')">
+    <div class="character" id="char-shogun" style="bottom:40px;left:200px" onclick="showInfo('shogun')">
       <img src="chars/shogun.png" alt="将军超人">
       <div class="char-name">将军超人 · 大家的偶像</div>
       <div class="status-icon" id="icon-shogun">🤖</div>
     </div>
 
-    <div class="character" id="char-houtsuki" style="bottom:60px;left:450px" onclick="showInfo('houtsuki')">
+    <div class="character" id="char-houtsuki" style="bottom:40px;left:450px" onclick="showInfo('houtsuki')">
       <img src="chars/houtsuki.png" alt="宝月巴">
       <div class="char-name">宝月巴 · 竞对老板</div>
       <div class="status-icon" id="icon-houtsuki">🔎</div>
     </div>
 
-    <div class="character" id="char-sayuri" style="bottom:60px;left:680px" onclick="showInfo('sayuri')">
+    <div class="character" id="char-sayuri" style="bottom:40px;left:680px" onclick="showInfo('sayuri')">
       <img src="chars/sayuri.png" alt="小百合">
       <div class="char-name">小百合 · 不要忘记……</div>
       <div class="status-icon" id="icon-sayuri">🌸</div>
     </div>
 
-    <div class="character" id="char-cowboy" style="bottom:60px;left:860px" onclick="showInfo('cowboy')">
+    <div class="character" id="char-cowboy" style="bottom:40px;left:860px" onclick="showInfo('cowboy')">
       <img src="chars/cowboy.png" alt="牛仔">
       <div class="char-name">牛仔（？） · 无所事事的家伙</div>
       <div class="status-icon" id="icon-cowboy">🤠</div>
     </div>
 
-    <div class="character" id="char-mystery" style="bottom:60px;left:1020px" onclick="showInfo('mystery')">
+    <div class="character" id="char-mystery" style="bottom:40px;left:1020px" onclick="showInfo('mystery')">
       <img src="chars/mystery.png" alt="神秘摇晃立牌">
       <div class="char-name">神秘立牌 · ???</div>
       <div class="status-icon" id="icon-mystery">❓</div>
     </div>
 
-    <div class="character" id="char-guard" style="bottom:60px;left:750px" onclick="showInfo('guard')">
+    <div class="character" id="char-guard" style="bottom:40px;left:750px" onclick="showInfo('guard')">
       <img src="chars/guard.png" alt="保安">
       <div class="char-name">保安 · 敬礼！</div>
       <div class="status-icon" id="icon-guard">🛡️</div>
@@ -350,18 +350,18 @@
 <div id="scroll-hint">▼ 向下滚动查看茶水间和洗手间 ▼</div>
 
 <!-- 信息弹窗 -->
-<div id="info-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#16213e;border:4px solid #64ffda;padding:20px;z-index:1000;min-width:280px;max-width:360px;font-family:'Press Start 2P',monospace">
-  <div style="display:flex;gap:12px;align-items:flex-start">
-    <img id="modal-img" src="" style="width:80px;height:80px;object-fit:contain;image-rendering:pixelated;border:3px solid #0f3460;background:#0f3460">
+<div id="info-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#16213e;border:4px solid #64ffda;padding:30px;z-index:1000;min-width:500px;max-width:600px;font-family:'Noto Sans SC',monospace">
+  <div style="display:flex;gap:12px;align-items:flex-end">
+    <img id="modal-img" src="" style="width:130px;height:130px;object-fit:contain;image-rendering:pixelated;border:3px solid #0f3460;background:#0f3460">
     <div style="flex:1">
-      <div id="modal-name" style="font-size:10px;color:#e94560;margin-bottom:8px"></div>
-      <div id="modal-title" style="font-size:7px;color:#64ffda;margin-bottom:8px"></div>
-      <div id="modal-status" style="font-size:7px;color:#a8b2d8;line-height:1.8"></div>
+      <div id="modal-name" style="font-size:15px;color:#e94560;"></div>
+      <div id="modal-title" style="font-size:12px;color:#64ffda;margin-bottom:8px"></div>
+      <div id="modal-status" style="font-size:12px;color:#a8b2d8;line-height:1.8"></div>
     </div>
   </div>
-  <div id="modal-quote" style="margin-top:12px;font-size:7px;color:#ffd700;border-top:2px solid #0f3460;padding-top:8px;line-height:1.8"></div>
+  <div id="modal-quote" style="margin-top:12px;font-size:15px;color:#ffd700;border-top:2px solid #0f3460;padding-top:8px;line-height:1.8"></div>
   <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="modal-stats"></div>
-  <button onclick="document.getElementById('info-modal').style.display='none';document.getElementById('modal-overlay').style.display='none'" style="margin-top:12px;background:#e94560;border:none;color:#fff;font-family:'Press Start 2P',monospace;font-size:7px;padding:6px 12px;cursor:pointer;width:100%">[ 关闭 ]</button>
+  <button onclick="document.getElementById('info-modal').style.display='none';document.getElementById('modal-overlay').style.display='none'" style="margin-top:12px;background:#e94560;border:none;color:#fff;font-family:'Noto Sans SC',monospace;font-size:10px;padding:6px 12px;cursor:pointer;width:100%">[ 关闭 ]</button>
 </div>
 <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999" onclick="document.getElementById('info-modal').style.display='none';document.getElementById('modal-overlay').style.display='none'"></div>
 

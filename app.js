@@ -340,8 +340,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
 const BGM_BASE = 'bgm/8bit/《逆转裁判123：成步堂精选集》原声音乐带-p';
 const BGM_EXT  = '-16.ogg';
-const TRACKS = Array.from({ length: 24 }, (_, i) => ({
-  title: 'Track ' + String(i + 1).padStart(2, '0'),
+const TRACK_NAMES = [
+  '逆转裁判 主题曲',
+  '成步堂龙一 事务所',
+  '侦探·搜查',
+  '真宵·灵媒道场',
+  '法庭·开庭',
+  '法庭·紧张',
+  '异议！（成步堂龙一）',
+  '追究·逼问',
+  '御剑怜侍 检察官室',
+  '异议！（御剑怜侍）',
+  '证人·怪人',
+  '证人·紧张',
+  '大逆转',
+  '真相·大逆转',
+  '矢张政志 主题曲',
+  '千寻·回忆',
+  '将军超人 主题曲',
+  '宝月巴 主题曲',
+  '冯·卡尔玛 主题曲',
+  '审判·宣判',
+  '逆转·胜利',
+  '成步堂龙一·逆转',
+  '片尾曲',
+  '逆转裁判 结局',
+];
+const TRACKS = TRACK_NAMES.map((title, i) => ({
+  title,
   file: BGM_BASE + String(i + 1).padStart(2, '0') + BGM_EXT,
 }));
 

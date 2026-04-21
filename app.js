@@ -11,7 +11,7 @@ const ZONE_IDS = { office: 'office-area', kitchen: 'kitchen-area', toilet: 'toil
 const visibleChars = new Set(defaultVisible);
 
 // ===== 游戏状态 =====
-let coffeeCount = 0, fishIndex = 0;
+let coffeeCount = 0;
 
 // ===== 现实时钟 =====
 function updateClock() {
@@ -23,12 +23,18 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// ===== 摸鱼指数自增 =====
-setInterval(() => {
-  fishIndex = Math.min(100, fishIndex + 1);
-  document.getElementById('stat-fish').textContent = fishIndex;
-  if (fishIndex >= 100) fishIndex = 0;
-}, 3000);
+// ===== 摸鱼指数：茶水间+洗手间人数 / 总可见人数 =====
+function updateFishIndex() {
+  const total = visibleChars.size;
+  if (total === 0) { document.getElementById('stat-fish').textContent = '0'; return; }
+  let slacking = 0;
+  visibleChars.forEach(slug => {
+    const el = document.getElementById('char-' + slug);
+    if (el && (el.dataset.zone === 'kitchen' || el.dataset.zone === 'toilet')) slacking++;
+  });
+  const pct = Math.round(slacking / total * 100);
+  document.getElementById('stat-fish').textContent = pct;
+}
 
 // ===== 初始化角色 =====
 function initCharacters() {
@@ -42,6 +48,7 @@ function initCharacters() {
   });
   updateStatCount();
   buildAvatarPanel();
+  updateFishIndex();
 }
 
 function updateStatCount() {
@@ -83,6 +90,7 @@ function toggleChar(slug, avatarEl) {
     setTimeout(() => scheduleAction(slug, el), 300);
   }
   updateStatCount();
+  updateFishIndex();
 }
 
 // ===== 对话气泡 =====
@@ -162,6 +170,7 @@ function walkToZone(slug, charEl, newZone, onDone) {
     zoneEl.appendChild(charEl);
     charEl.style.left = enterX + 'px';
     charEl.style.bottom = '40px';
+    updateFishIndex();
     // 入场方向：从左侧进来向右走，从右侧进来向左走
     const enterImgEl = charEl.querySelector('img');
     if (enterImgEl) enterImgEl.style.transform = getFacingScale(charEl, !exitRight);
@@ -216,8 +225,6 @@ function scheduleAction(slug, charEl) {
     }
     // 其他情况：原地喝
     charEl.classList.add('drinking');
-    coffeeCount++;
-    document.getElementById('stat-coffee').textContent = coffeeCount;
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = '☕';
     showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);

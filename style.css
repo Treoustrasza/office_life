@@ -613,16 +613,16 @@ body {
     background: rgba(255,255,255,0.6);
   }
 
-  /* ===== 角色通用样式 ===== */
-  .character {
-    position: absolute;
-    width: auto;
-    height: 80px;
-    cursor: pointer;
-    z-index: 10;
-    transition: none;
-    image-rendering: pixelated;
-  }
+/* ===== 角色通用样式 ===== */
+.character {
+  position: absolute;
+  width: auto;
+  height: 80px;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.15s steps(3);
+  image-rendering: pixelated;
+}
   .character img {
     width: auto;
     height: 100%;

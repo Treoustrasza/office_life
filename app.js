@@ -102,20 +102,34 @@ function moveCharacter(charEl, targetX, onDone) {
   const diff = targetX - currentLeft;
   if (Math.abs(diff) < 2) { if (onDone) onDone(); return; }
   const dir = diff > 0 ? 1 : -1;
-  charEl.classList.add('walking');
-  charEl.style.transform = dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
-  let pos = currentLeft;
-  const iv = setInterval(() => {
-    pos += dir * 1.5;
-    if ((dir > 0 && pos >= targetX) || (dir < 0 && pos <= targetX)) {
-      pos = targetX;
-      clearInterval(iv);
-      charEl.classList.remove('walking');
-      charEl.style.transform = 'scaleX(1)';
-      if (onDone) onDone();
-    }
-    charEl.style.left = pos + 'px';
-  }, 16);
+  const targetScale = dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+
+  // 先翻转朝向（CSS transition 0.15s steps(3)），再开始移动
+  const alreadyFacing = charEl.style.transform === targetScale;
+  charEl.style.transform = targetScale;
+
+  const startMove = () => {
+    charEl.classList.add('walking');
+    let pos = currentLeft;
+    const iv = setInterval(() => {
+      pos += dir * 1.5;
+      if ((dir > 0 && pos >= targetX) || (dir < 0 && pos <= targetX)) {
+        pos = targetX;
+        clearInterval(iv);
+        charEl.classList.remove('walking');
+        // 保留朝向，不强制复位
+        if (onDone) onDone();
+      }
+      charEl.style.left = pos + 'px';
+    }, 16);
+  };
+
+  if (alreadyFacing) {
+    startMove();
+  } else {
+    // 等翻转动画完成（150ms）再走
+    setTimeout(startMove, 150);
+  }
 }
 
 // ===== 跨区域移动（走出边缘 → 从另一侧进入目标区域）=====
@@ -136,6 +150,8 @@ function walkToZone(slug, charEl, newZone, onDone) {
     zoneEl.appendChild(charEl);
     charEl.style.left = enterX + 'px';
     charEl.style.bottom = '40px';
+    // 入场方向：从左侧进来朝右，从右侧进来朝左
+    charEl.style.transform = exitRight ? 'scaleX(1)' : 'scaleX(-1)';
 
     // 3. 从边缘走入目标区域
     moveCharacter(charEl, destX, () => {

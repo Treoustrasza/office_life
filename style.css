@@ -913,93 +913,130 @@ body {
 }
 
 /* ============================================================
-   像素风音乐播放器（场景内小道具）
+   像素风收音机（场景内摆设，工位区右侧空白处）
    ============================================================ */
 .pixel-player {
-position: absolute;
-bottom: 40px;
-right: 20px;
-width: 52px;
-cursor: pointer;
-z-index: 5;
-user-select: none;
-}
-.pixel-player:hover { filter: brightness(1.2); }
-
-.player-body {
-  width: 52px;
-  height: 64px;
-  background: #1a1a2e;
-  border: 3px solid #64ffda;
-  position: relative;
+  position: absolute;
+  bottom: 40px;
+  left: 960px;
+  width: 64px;
+  cursor: pointer;
+  z-index: 5;
+  user-select: none;
   image-rendering: pixelated;
 }
+.pixel-player:hover { filter: brightness(1.15); }
 
+/* 机身：米白/奶油色，像老式收音机 */
+.player-body {
+  width: 64px;
+  height: 52px;
+  background: #f0e8d0;
+  border: 3px solid #8b7355;
+  border-bottom: 4px solid #6b5535;
+  position: relative;
+  box-shadow: inset -2px -2px 0 #c8b898, inset 2px 2px 0 #fff8ee;
+}
+
+/* 天线 */
+.player-antenna {
+  position: absolute;
+  top: -14px;
+  right: 10px;
+  width: 3px;
+  height: 14px;
+  background: #8b7355;
+  border-top: 2px solid #6b5535;
+}
+.player-antenna::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -1px;
+  width: 5px;
+  height: 3px;
+  background: #6b5535;
+}
+
+/* 屏幕：绿色液晶风 */
 .player-screen {
   position: absolute;
-  top: 6px;
+  top: 5px;
   left: 5px;
-  right: 5px;
-  height: 18px;
-  background: #001a33;
-  border: 2px solid #0f3460;
+  width: 36px;
+  height: 14px;
+  background: #2d4a1e;
+  border: 2px solid #4a6b35;
   overflow: hidden;
 }
 .player-screen-text {
-  font-size: 5px;
-  color: #64ffda;
+  font-size: 4px;
+  color: #7fff00;
   font-family: 'Press Start 2P', monospace;
-  line-height: 14px;
+  line-height: 10px;
   padding-left: 2px;
   white-space: nowrap;
-  animation: marquee 6s linear infinite;
+  animation: marquee 8s linear infinite;
 }
 @keyframes marquee {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-60px); }
+  100% { transform: translateX(-80px); }
 }
 
-.player-buttons {
-  position: absolute;
-  bottom: 18px;
-  left: 4px;
-  right: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.player-btn {
-  width: 8px;
-  height: 8px;
-  background: #0f3460;
-  border: 1px solid #64ffda;
-}
-.player-btn-big {
-  width: 14px;
-  height: 14px;
-  background: #64ffda;
-  border: 2px solid #fff;
-}
-
+/* 扬声器：横线网格 */
 .player-speaker {
   position: absolute;
-  bottom: 4px;
-  left: 6px;
-  display: grid;
-  grid-template-columns: repeat(4, 6px);
-  gap: 2px;
+  bottom: 6px;
+  left: 5px;
+  width: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
-.speaker-dot {
-  width: 4px;
-  height: 4px;
-  background: #0f3460;
-  border-radius: 50%;
+.speaker-line {
+  height: 2px;
+  background: #8b7355;
+  border-radius: 1px;
 }
 
+/* 旋钮区：右侧 */
+.player-knobs {
+  position: absolute;
+  right: 5px;
+  top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.player-knob {
+  width: 14px;
+  height: 14px;
+  background: #c8a060;
+  border: 2px solid #8b6535;
+  border-radius: 50%;
+  box-shadow: inset 1px 1px 0 #e8c080, inset -1px -1px 0 #a07040;
+  transition: background 0.15s;
+}
+.player-knob.active,
+#player-btn-big.active {
+  background: #e94560;
+  border-color: #c02040;
+  box-shadow: inset 1px 1px 0 #ff8090, inset -1px -1px 0 #a01030;
+}
+.player-knob-sm {
+  width: 9px;
+  height: 9px;
+  background: #a08050;
+  border: 2px solid #6b5535;
+  box-shadow: none;
+}
+
+/* 底部标签 */
 .player-label {
   text-align: center;
-  font-size: 5px;
-  color: #64ffda;
+  font-size: 4px;
+  color: #8b7355;
   font-family: 'Press Start 2P', monospace;
   margin-top: 2px;
   letter-spacing: 1px;

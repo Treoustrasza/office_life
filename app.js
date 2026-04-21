@@ -603,7 +603,7 @@ function updatePlayerUI() {
   if (screenEl) screenEl.textContent = isPlaying ? '♪ ' + TRACKS[currentTrack].title.slice(0, 6) : '♪ BGM';
 
   const bigBtn = document.getElementById('player-btn-big');
-  if (bigBtn) bigBtn.style.background = isPlaying ? '#e94560' : '#64ffda';
+  if (bigBtn) bigBtn.classList.toggle('active', isPlaying);
 
   document.querySelectorAll('.track-item').forEach((el, i) => {
     el.classList.toggle('active', i === currentTrack);

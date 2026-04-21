@@ -706,23 +706,19 @@ body {
     to { transform: translateY(-4px); }
   }
 
-  /* 走路动画 */
+  /* 走路动画：用 margin-bottom 做弹跳，不覆盖 JS 控制的 transform(scaleX) */
   @keyframes walk-bounce {
-    0%, 100% { transform: translateY(0) scaleX(1); }
-    50% { transform: translateY(-3px) scaleX(1); }
+    0%, 100% { margin-bottom: 0; }
+    50% { margin-bottom: 4px; }
   }
   .walking {
-    animation: walk-bounce 0.4s steps(2) infinite;
-  }
-  .walking-left {
-    animation: walk-bounce 0.4s steps(2) infinite;
-    transform: scaleX(-1);
+    animation: walk-bounce 0.3s steps(2) infinite;
   }
 
   /* 工作动画 */
   @keyframes work-nod {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px); }
+    0%, 100% { margin-bottom: 0; }
+    50% { margin-bottom: 3px; }
   }
   .working {
     animation: work-nod 1s ease-in-out infinite;
@@ -730,9 +726,9 @@ body {
 
   /* 喝咖啡动画 */
   @keyframes drink {
-    0%, 100% { transform: rotate(0deg); }
-    30% { transform: rotate(-15deg); }
-    60% { transform: rotate(-15deg); }
+    0%, 100% { margin-bottom: 0; }
+    30% { margin-bottom: 5px; }
+    60% { margin-bottom: 2px; }
   }
   .drinking {
     animation: drink 2s ease-in-out infinite;
@@ -861,8 +857,8 @@ body {
 
 /* 打哈欠动画 */
 @keyframes yawn {
-  0%, 80%, 100% { transform: scale(1); }
-  40% { transform: scale(1.05) translateY(-2px); }
+  0%, 80%, 100% { margin-bottom: 0; }
+  40% { margin-bottom: 3px; }
 }
 .yawning { animation: yawn 3s ease-in-out infinite; }
 

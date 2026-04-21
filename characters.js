@@ -7,6 +7,7 @@ const characters = [
   {
     slug: 'naruhodou',
     img: 'chars/naruhodou.png',
+    facingRight: true,
     name: '成步堂',
     title: '律师 · 成步堂法律事务所',
     zone: 'office',           // 初始区域：office / kitchen / toilet
@@ -28,6 +29,7 @@ const characters = [
   {
     slug: 'mayoi',
     img: 'chars/mayoi.png',
+    facingRight: false,
     name: '真宵',
     title: '灵媒见习生 · 神里家',
     zone: 'office',
@@ -49,6 +51,7 @@ const characters = [
   {
     slug: 'chihiro',
     img: 'chars/chihiro.png',
+    facingRight: false,
     name: '千寻',
     title: '首席律师',
     zone: 'office',
@@ -70,6 +73,7 @@ const characters = [
   {
     slug: 'mitsurugi',
     img: 'chars/mitsurugi.png',
+    facingRight: false,
     name: '御剑',
     title: '天才检察官 · 无败绩',
     zone: 'office',
@@ -91,6 +95,7 @@ const characters = [
   {
     slug: 'itonokogiri',
     img: 'chars/itonokogiri.png',
+    facingRight: false,
     name: '糸锯',
     title: '很穷……',
     zone: 'office',
@@ -112,6 +117,7 @@ const characters = [
   {
     slug: 'lawyer2',
     img: 'chars/lawyer2.png',
+    facingRight: true,
     name: '不知名大叔（？）',
     title: '洗手间主理人',
     zone: 'office',
@@ -133,6 +139,7 @@ const characters = [
   {
     slug: 'yahari',
     img: 'chars/yahari.png',
+    facingRight: false,
     name: '矢张',
     title: '可疑的家伙',
     zone: 'kitchen',
@@ -154,6 +161,7 @@ const characters = [
   {
     slug: 'pink_lady',
     img: 'chars/pink_lady.png',
+    facingRight: false,
     name: '粉色小姐',
     title: '似乎只是秘书',
     zone: 'kitchen',
@@ -175,6 +183,7 @@ const characters = [
   {
     slug: 'ooba',
     img: 'chars/ooba.png',
+    facingRight: false,
     name: '大场香',
     title: '前台',
     zone: 'kitchen',
@@ -196,6 +205,7 @@ const characters = [
   {
     slug: 'bentou',
     img: 'chars/bentou.png',
+    facingRight: false,
     name: '要买盒饭吗',
     title: '神秘小贩',
     zone: 'kitchen',
@@ -217,6 +227,7 @@ const characters = [
   {
     slug: 'shogun',
     img: 'chars/shogun.png',
+    facingRight: false,
     name: '将军超人',
     title: '其实是皮套',
     zone: 'toilet',
@@ -238,6 +249,7 @@ const characters = [
   {
     slug: 'houtsuki',
     img: 'chars/houtsuki.png',
+    facingRight: false,
     name: '宝月巴',
     title: '竞对公司CEO',
     zone: 'toilet',
@@ -256,6 +268,7 @@ const characters = [
   {
     slug: 'sayuri',
     img: 'chars/sayuri.png',
+    facingRight: false,
     name: '小百合',
     title: '工位宠物',
     zone: 'toilet',
@@ -274,6 +287,7 @@ const characters = [
   {
     slug: 'cowboy',
     img: 'chars/cowboy.png',
+    facingRight: false,
     name: '牛仔（？）',
     title: '？？？',
     zone: 'toilet',
@@ -292,6 +306,7 @@ const characters = [
   {
     slug: 'mystery',
     img: 'chars/mystery.png',
+    facingRight: false,
     name: '逮捕君',
     title: '公司吉祥物',
     zone: 'toilet',
@@ -313,6 +328,7 @@ const characters = [
   {
     slug: 'guard',
     img: 'chars/guard.png',
+    facingRight: false,
     name: '保安',
     title: '大概快要被开除了',
     zone: 'toilet',

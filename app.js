@@ -97,12 +97,23 @@ function showPhrase(charEl, phrase) {
 }
 
 // ===== 角色移动 =====
+// 根据角色默认朝向（facingRight）和移动方向，计算正确的 scaleX
+function getFacingScale(charEl, movingRight) {
+  const slug = charEl.id.replace('char-', '');
+  const char = characters.find(c => c.slug === slug);
+  const facingRight = char ? char.facingRight : true;
+  // 移动方向与默认朝向一致 → 不翻转(scaleX(1))；相反 → 翻转(scaleX(-1))
+  const flip = movingRight !== facingRight;
+  return flip ? 'scaleX(-1)' : 'scaleX(1)';
+}
+
 function moveCharacter(charEl, targetX, onDone) {
   const currentLeft = parseInt(charEl.style.left) || 0;
   const diff = targetX - currentLeft;
   if (Math.abs(diff) < 2) { if (onDone) onDone(); return; }
   const dir = diff > 0 ? 1 : -1;
-  const targetScale = dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+  const movingRight = dir > 0;
+  const targetScale = getFacingScale(charEl, movingRight);
 
   // 先翻转朝向（CSS transition 0.15s steps(3)），再开始移动
   const alreadyFacing = charEl.style.transform === targetScale;
@@ -150,8 +161,8 @@ function walkToZone(slug, charEl, newZone, onDone) {
     zoneEl.appendChild(charEl);
     charEl.style.left = enterX + 'px';
     charEl.style.bottom = '40px';
-    // 入场方向：从左侧进来朝右，从右侧进来朝左
-    charEl.style.transform = exitRight ? 'scaleX(1)' : 'scaleX(-1)';
+    // 入场方向：从左侧进来向右走，从右侧进来向左走
+    charEl.style.transform = getFacingScale(charEl, !exitRight);
 
     // 3. 从边缘走入目标区域
     moveCharacter(charEl, destX, () => {

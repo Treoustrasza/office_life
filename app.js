@@ -314,13 +314,13 @@ const events = [
 let coffeeSfx = null;
 function initCoffeeSfx() {
   coffeeSfx = new Audio('sfx/coffee-machine.wav');
-  coffeeSfx.volume = 0.5;
+  coffeeSfx.volume = 0.3;
 }
 
 function playCoffeeSfx() {
   if (!coffeeSfx) return;
   coffeeSfx.currentTime = 0;
-  coffeeSfx.volume = 0.5;
+  coffeeSfx.volume = 0.3;
   coffeeSfx.play().catch(() => {});
 }
 
@@ -464,7 +464,7 @@ let audio = null;
 
 function initMusicPlayer() {
   audio = new Audio();
-  audio.volume = 0.6;
+  audio.volume = 0.3;
   audio.addEventListener('ended', () => nextTrack());
   audio.addEventListener('error', () => {
     setTimeout(() => nextTrack(), 500);

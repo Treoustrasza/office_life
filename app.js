@@ -116,8 +116,9 @@ function moveCharacter(charEl, targetX, onDone) {
   const targetScale = getFacingScale(charEl, movingRight);
 
   // 先翻转朝向（CSS transition 0.15s steps(3)），再开始移动
-  const alreadyFacing = charEl.style.transform === targetScale;
-  charEl.style.transform = targetScale;
+  const imgEl = charEl.querySelector('img');
+  const alreadyFacing = imgEl && imgEl.style.transform === targetScale;
+  if (imgEl) imgEl.style.transform = targetScale;
 
   const startMove = () => {
     charEl.classList.add('walking');
@@ -162,7 +163,8 @@ function walkToZone(slug, charEl, newZone, onDone) {
     charEl.style.left = enterX + 'px';
     charEl.style.bottom = '40px';
     // 入场方向：从左侧进来向右走，从右侧进来向左走
-    charEl.style.transform = getFacingScale(charEl, !exitRight);
+    const enterImgEl = charEl.querySelector('img');
+    if (enterImgEl) enterImgEl.style.transform = getFacingScale(charEl, !exitRight);
 
     // 3. 从边缘走入目标区域
     moveCharacter(charEl, destX, () => {
@@ -201,10 +203,16 @@ function scheduleAction(slug, charEl) {
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = ['💻', '⌨️', '📊', '📝', '🖱️'][Math.floor(Math.random() * 5)];
   } else if (action === 'drink') {
-    // 在茶水间且概率触发 → 走去咖啡机打咖啡
-    if (charEl.dataset.zone === 'kitchen' && Math.random() < 0.6) {
-      useCoffeeMachine(slug, charEl);
-      return;
+    // 在茶水间且概率触发 → 走去咖啡机或贩卖机
+    if (charEl.dataset.zone === 'kitchen') {
+      const roll = Math.random();
+      if (roll < 0.4) {
+        useCoffeeMachine(slug, charEl);
+        return;
+      } else if (roll < 0.7) {
+        useVendingMachine(slug, charEl);
+        return;
+      }
     }
     // 其他情况：原地喝
     charEl.classList.add('drinking');
@@ -355,6 +363,18 @@ const events = [
   },
 ];
 
+// ===== 开罐音效 =====
+let canOpenSfx = null;
+function initCanOpenSfx() {
+  canOpenSfx = new Audio('sfx/can-open.wav');
+  canOpenSfx.volume = 0.5;
+}
+function playCanOpenSfx() {
+  if (!canOpenSfx) return;
+  canOpenSfx.currentTime = 0;
+  canOpenSfx.play().catch(() => {});
+}
+
 // ===== 咖啡机音效 =====
 let coffeeSfx = null;
 function initCoffeeSfx() {
@@ -435,6 +455,87 @@ function useCoffeeMachine(slug, charEl) {
   });
 }
 
+// ===== 贩卖机交互 =====
+// 贩卖机在 kitchen-area，left:580px，角色站在旁边约 left:560px
+const VENDING_MACHINE_X = 560;
+let vendingMachineBusy = false;
+
+function useVendingMachine(slug, charEl) {
+  if (vendingMachineBusy) {
+    setTimeout(() => scheduleAction(slug, charEl), 2000 + Math.random() * 2000);
+    return;
+  }
+  vendingMachineBusy = true;
+
+  const vmEl = document.getElementById('vending-machine');
+
+  // 1. 走到贩卖机旁边
+  moveCharacter(charEl, VENDING_MACHINE_X, () => {
+    const icon = charEl.querySelector('.status-icon');
+    if (icon) icon.textContent = '🥤';
+
+    // 2. 购买动画：按钮闪烁 + 硬币投入
+    if (vmEl) {
+      vmEl.classList.add('vm-buying');
+
+      // 硬币动画元素（停留更久，让投币感更明显）
+      const coin = document.createElement('div');
+      coin.className = 'vm-coin';
+      coin.textContent = '¥';
+      vmEl.appendChild(coin);
+      setTimeout(() => coin.remove(), 1200);
+
+      // 罐子掉落动画（2s 后触发，给按钮闪烁留足时间）
+      setTimeout(() => {
+        const dispensed = document.createElement('div');
+        dispensed.className = 'vm-dispensed-can';
+        const outlet = vmEl.querySelector('.vm-outlet');
+        if (outlet) outlet.appendChild(dispensed);
+        setTimeout(() => dispensed.remove(), 1400);
+      }, 2000);
+
+      // vm-buying 类在罐子掉落后再移除
+      setTimeout(() => vmEl.classList.remove('vm-buying'), 2400);
+    }
+
+    // 3. 3s 后：开罐音效 + 喝可乐动画（给罐子掉落留足欣赏时间）
+    setTimeout(() => {
+      playCanOpenSfx();
+
+      // 举罐动画：在角色上附加一个可乐罐元素
+      let canHeld = null;
+      canHeld = document.createElement('div');
+      canHeld.className = 'drink-can-held';
+      charEl.appendChild(canHeld);
+      charEl.classList.add('char-drinking');
+
+      // 气泡效果（随机位置冒出 5 个泡泡，间隔拉长）
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          const bubble = document.createElement('div');
+          bubble.className = 'drink-bubble';
+          bubble.style.left = (8 + Math.random() * 16) + 'px';
+          bubble.style.top = (4 + Math.random() * 8) + 'px';
+          charEl.appendChild(bubble);
+          setTimeout(() => bubble.remove(), 1200);
+        }, i * 400);
+      }
+
+      const char = characters.find(c => c.slug === slug);
+      if (char) showPhrase(charEl, ['🥤 好喝！', '可乐！', '嗝～', '爽！'][Math.floor(Math.random() * 4)]);
+
+      vendingMachineBusy = false;
+
+      // 4. 喝完后清理，继续调度（延长到 4s，让喝可乐动画充分展示）
+      setTimeout(() => {
+        charEl.classList.remove('char-drinking');
+        if (canHeld) canHeld.remove();
+        scheduleAction(slug, charEl);
+      }, 4000);
+    }, 3000);
+  });
+}
+
 // ===== 随机事件触发 =====
 function triggerRandomEvent() {
   const ev = events[Math.floor(Math.random() * events.length)];
@@ -464,6 +565,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(startAllAI, 500);
   initMusicPlayer();
   initCoffeeSfx();
+  initCanOpenSfx();
 });
 
 // ============================================================

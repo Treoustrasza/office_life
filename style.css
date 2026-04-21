@@ -916,13 +916,13 @@ body {
    像素风音乐播放器（场景内小道具）
    ============================================================ */
 .pixel-player {
-  position: absolute;
-  bottom: 40px;
-  right: 20px;
-  width: 52px;
-  cursor: pointer;
-  z-index: 20;
-  user-select: none;
+position: absolute;
+bottom: 40px;
+right: 20px;
+width: 52px;
+cursor: pointer;
+z-index: 5;
+user-select: none;
 }
 .pixel-player:hover { filter: brightness(1.2); }
 

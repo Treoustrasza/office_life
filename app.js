@@ -313,7 +313,7 @@ const events = [
 // ===== 咖啡机音效 =====
 let coffeeSfx = null;
 function initCoffeeSfx() {
-  coffeeSfx = new Audio('sfx/coffee_machine.mp3');
+  coffeeSfx = new Audio('sfx/coffee-machine.wav');
   coffeeSfx.volume = 0.5;
 }
 

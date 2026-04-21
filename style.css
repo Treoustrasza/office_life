@@ -407,7 +407,7 @@ body {
     bottom: 0; left: 1px; right: 1px;
     height: 6px;
     background: #6b3a2a;
-    animation: fill-cup 1.5s linear forwards;
+    animation: fill-cup 4s linear forwards;
   }
   @keyframes fill-cup {
     from { height: 0; }

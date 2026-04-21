@@ -320,7 +320,24 @@ function initCoffeeSfx() {
 function playCoffeeSfx() {
   if (!coffeeSfx) return;
   coffeeSfx.currentTime = 0;
+  coffeeSfx.volume = 0.5;
   coffeeSfx.play().catch(() => {});
+}
+
+function fadeCoffeeSfx(duration) {
+  if (!coffeeSfx || coffeeSfx.paused) return;
+  const step = 50;
+  const delta = coffeeSfx.volume / (duration / step);
+  const iv = setInterval(() => {
+    const next = coffeeSfx.volume - delta;
+    if (next <= 0) {
+      coffeeSfx.volume = 0;
+      coffeeSfx.pause();
+      clearInterval(iv);
+    } else {
+      coffeeSfx.volume = next;
+    }
+  }, step);
 }
 
 // ===== 咖啡机交互 =====
@@ -347,8 +364,10 @@ function useCoffeeMachine(slug, charEl) {
     if (machineEl) machineEl.classList.add('brewing');
     playCoffeeSfx();
 
-    // 3. 等待"出咖啡"（1.5秒）
+    // 3. 等待"出咖啡"（4秒），结束时淡出音效
     setTimeout(() => {
+      // 音效淡出（0.8秒内降到0）
+      fadeCoffeeSfx(800);
       // 咖啡机停止运转
       if (machineEl) machineEl.classList.remove('brewing');
 
@@ -367,7 +386,7 @@ function useCoffeeMachine(slug, charEl) {
         charEl.classList.remove('drinking');
         scheduleAction(slug, charEl);
       }, 2000);
-    }, 1500);
+    }, 4000);
   });
 }
 

@@ -267,21 +267,21 @@ function showInfo(slug) {
 // ===== 随机事件 =====
 const events = [
   {
-    msg: '⚖️ 新案件来了！成步堂紧急出动',
+    msg: '⚖️ 委托人来了，成步堂哥，别再刷厕所了！',
     action: () => {
       const e = document.getElementById('char-naruhodou');
-      if (e && e.style.display !== 'none') showPhrase(e, '异议！！！');
+      if (e && e.style.display !== 'none') showPhrase(e, '请看律师徽章！');
     }
   },
   {
-    msg: '☕ 咖啡机坏了！全员崩溃',
+    msg: '☕ 咖啡机坏了，可是，已经没有钱换新的了……',
     action: () => {
       const e = document.getElementById('char-yahari');
-      if (e && e.style.display !== 'none') showPhrase(e, '咖啡机坏了！！！');
+      if (e && e.style.display !== 'none') showPhrase(e, '还要交房租的啊……');
     }
   },
   {
-    msg: '📢 御剑宣布：我是来挑战你的！',
+    msg: '📢 御剑宣布：因为你的缘故，我生出了多余的感情',
     action: () => {
       const e = document.getElementById('char-mitsurugi');
       if (e && e.style.display !== 'none') showPhrase(e, '区区靠运气赢下三次的新手律师……');
@@ -295,7 +295,7 @@ const events = [
     }
   },
   {
-    msg: '💤 下午三点，全员犯困',
+    msg: '💤 头好晕，是被什么东西砸了吗',
     action: () => {
       document.querySelectorAll('.character').forEach(el => {
         if (el.style.display !== 'none') el.classList.add('yawning');
@@ -306,10 +306,10 @@ const events = [
     }
   },
   {
-    msg: '👻 真宵突然发动灵媒术，全员震惊',
+    msg: '👻 真宵？不，千寻姐……？',
     action: () => {
       const e = document.getElementById('char-mayoi');
-      if (e && e.style.display !== 'none') showPhrase(e, '姐姐教过我！');
+      if (e && e.style.display !== 'none') showPhrase(e, '姐姐……');
     }
   },
   {
@@ -320,7 +320,7 @@ const events = [
     }
   },
   {
-    msg: '🌸 粉色小姐路过，全员停止工作',
+    msg: '🌸 有可疑人员潜入公司安装窃听器',
     action: () => {
       const e = document.getElementById('char-pink_lady');
       if (e && e.style.display !== 'none') showPhrase(e, '嗯哼～');
@@ -334,14 +334,14 @@ const events = [
     }
   },
   {
-    msg: '🦜 小百合突然开口说话，全员沉默',
+    msg: '🦜 小百合~小百合~你有忘记什么事吗？',
     action: () => {
       const e = document.getElementById('char-sayuri');
       if (e && e.style.display !== 'none') showPhrase(e, '不可忘记DL-6号事件。');
     }
   },
   {
-    msg: '❓ 逮捕君开始剧烈摇晃，原因不明',
+    msg: '❓ 逮捕君正在随着音乐旋转',
     action: () => {
       const e = document.getElementById('char-mystery');
       if (e && e.style.display !== 'none') showPhrase(e, '（剧烈摇晃）');

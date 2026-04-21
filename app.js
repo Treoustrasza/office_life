@@ -156,6 +156,12 @@ function scheduleAction(slug, charEl) {
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = ['💻', '⌨️', '📊', '📝', '🖱️'][Math.floor(Math.random() * 5)];
   } else if (action === 'drink') {
+    // 在茶水间且概率触发 → 走去咖啡机打咖啡
+    if (charEl.dataset.zone === 'kitchen' && Math.random() < 0.6) {
+      useCoffeeMachine(slug, charEl);
+      return;
+    }
+    // 其他情况：原地喝
     charEl.classList.add('drinking');
     coffeeCount++;
     document.getElementById('stat-coffee').textContent = coffeeCount;
@@ -304,6 +310,67 @@ const events = [
   },
 ];
 
+// ===== 咖啡机音效 =====
+let coffeeSfx = null;
+function initCoffeeSfx() {
+  coffeeSfx = new Audio('sfx/coffee_machine.mp3');
+  coffeeSfx.volume = 0.5;
+}
+
+function playCoffeeSfx() {
+  if (!coffeeSfx) return;
+  coffeeSfx.currentTime = 0;
+  coffeeSfx.play().catch(() => {});
+}
+
+// ===== 咖啡机交互 =====
+// 咖啡机在 kitchen-area，left:220px，角色站在旁边约 left:200px
+const COFFEE_MACHINE_X = 200;
+let coffeeMachineBusy = false; // 同一时间只允许一个角色使用
+
+function useCoffeeMachine(slug, charEl) {
+  if (coffeeMachineBusy) {
+    // 咖啡机被占用，等一会儿再调度
+    setTimeout(() => scheduleAction(slug, charEl), 2000 + Math.random() * 2000);
+    return;
+  }
+  coffeeMachineBusy = true;
+
+  const machineEl = document.querySelector('#kitchen-area .coffee-machine');
+
+  // 1. 走到咖啡机旁边
+  moveCharacter(charEl, COFFEE_MACHINE_X, () => {
+    const icon = charEl.querySelector('.status-icon');
+    if (icon) icon.textContent = '☕';
+
+    // 2. 咖啡机开始运转
+    if (machineEl) machineEl.classList.add('brewing');
+    playCoffeeSfx();
+
+    // 3. 等待"出咖啡"（1.5秒）
+    setTimeout(() => {
+      // 咖啡机停止运转
+      if (machineEl) machineEl.classList.remove('brewing');
+
+      // 4. 角色喝咖啡动画 + 计数
+      charEl.classList.add('drinking');
+      coffeeCount++;
+      document.getElementById('stat-coffee').textContent = coffeeCount;
+
+      const char = characters.find(c => c.slug === slug);
+      if (char) showPhrase(charEl, '☕ 续命！');
+
+      coffeeMachineBusy = false;
+
+      // 5. 喝完后继续调度
+      setTimeout(() => {
+        charEl.classList.remove('drinking');
+        scheduleAction(slug, charEl);
+      }, 2000);
+    }, 1500);
+  });
+}
+
 // ===== 随机事件触发 =====
 function triggerRandomEvent() {
   const ev = events[Math.floor(Math.random() * events.length)];
@@ -332,6 +399,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initCharacters();
   setTimeout(startAllAI, 500);
   initMusicPlayer();
+  initCoffeeSfx();
 });
 
 // ============================================================

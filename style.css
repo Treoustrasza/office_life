@@ -386,6 +386,50 @@ body {
     border: 2px solid #888;
   }
 
+  /* 咖啡机运转中 */
+  .coffee-machine.brewing {
+    animation: machine-shake 0.15s steps(2) infinite;
+  }
+  @keyframes machine-shake {
+    0%   { transform: translateX(0); }
+    50%  { transform: translateX(2px); }
+    100% { transform: translateX(-2px); }
+  }
+  /* 运转时指示灯变红 */
+  .coffee-machine.brewing .coffee-machine-light {
+    background: #e94560;
+    animation: blink 0.3s infinite;
+  }
+  /* 运转时杯子里出现咖啡色 */
+  .coffee-machine.brewing .coffee-machine-cup::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 1px; right: 1px;
+    height: 6px;
+    background: #6b3a2a;
+    animation: fill-cup 1.5s linear forwards;
+  }
+  @keyframes fill-cup {
+    from { height: 0; }
+    to   { height: 8px; }
+  }
+  /* 运转时冒热气 */
+  .coffee-machine.brewing::after {
+    content: '~';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #aaa;
+    animation: steam 0.8s ease-out infinite;
+  }
+  @keyframes steam {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(0); }
+    50%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  }
+
   /* 微波炉 */
   .microwave {
     position: absolute;

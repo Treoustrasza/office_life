@@ -118,14 +118,30 @@ function moveCharacter(charEl, targetX, onDone) {
   }, 16);
 }
 
-// ===== 跨区域传送 =====
-function teleportToZone(charEl, newZone) {
+// ===== 跨区域移动（走出边缘 → 从另一侧进入目标区域）=====
+function walkToZone(slug, charEl, newZone, onDone) {
   const zoneEl = document.getElementById(ZONE_IDS[newZone]);
   if (!zoneEl) return;
-  charEl.dataset.zone = newZone;
-  zoneEl.appendChild(charEl);
-  charEl.style.left = (60 + Math.random() * 900) + 'px';
-  charEl.style.bottom = '40px';
+
+  // 随机决定从左侧还是右侧离开
+  const exitRight = Math.random() < 0.5;
+  const exitX = exitRight ? 1300 : -80;
+  const enterX = exitRight ? -80 : 1300;
+  const destX  = 80 + Math.random() * 900;
+
+  // 1. 走到当前区域边缘（出镜）
+  moveCharacter(charEl, exitX, () => {
+    // 2. 移入目标区域，放在对侧边缘（此时在 overflow:hidden 外，不可见）
+    charEl.dataset.zone = newZone;
+    zoneEl.appendChild(charEl);
+    charEl.style.left = enterX + 'px';
+    charEl.style.bottom = '40px';
+
+    // 3. 从边缘走入目标区域
+    moveCharacter(charEl, destX, () => {
+      if (onDone) onDone();
+    });
+  });
 }
 
 // ===== AI 行为调度 =====
@@ -138,8 +154,10 @@ function scheduleAction(slug, charEl) {
   // 10% 概率跨区域移动
   if (Math.random() < 0.10) {
     const others = ZONES.filter(z => z !== charEl.dataset.zone);
-    teleportToZone(charEl, others[Math.floor(Math.random() * others.length)]);
-    setTimeout(() => scheduleAction(slug, charEl), 1500 + Math.random() * 2000);
+    const newZone = others[Math.floor(Math.random() * others.length)];
+    walkToZone(slug, charEl, newZone, () => {
+      setTimeout(() => scheduleAction(slug, charEl), 500 + Math.random() * 1000);
+    });
     return;
   }
 

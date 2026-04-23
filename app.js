@@ -743,6 +743,10 @@ function updatePlayerUI() {
   const bigBtn = document.getElementById('player-btn-big');
   if (bigBtn) bigBtn.classList.toggle('active', isPlaying);
 
+  // 声波动效
+  const sw = document.getElementById('player-soundwave');
+  if (sw) sw.classList.toggle('playing', isPlaying);
+
   document.querySelectorAll('.track-item').forEach((el, i) => {
     el.classList.toggle('active', i === currentTrack);
   });
@@ -758,5 +762,23 @@ function toggleMusicPanel() {
   if (!isOpen) {
     buildTrackList();
     updatePlayerUI();
+  }
+}
+
+// ===== 全局静音 =====
+let isMuted = false;
+function toggleMute() {
+  isMuted = !isMuted;
+  // BGM
+  if (audio) audio.muted = isMuted;
+  // 音效
+  if (canOpenSfx) canOpenSfx.muted = isMuted;
+  if (coffeeSfx) coffeeSfx.muted = isMuted;
+  // 按钮状态
+  const btn = document.getElementById('mute-btn');
+  if (btn) {
+    btn.textContent = isMuted ? '🔇' : '🔊';
+    btn.classList.toggle('muted', isMuted);
+    btn.title = isMuted ? '取消静音' : '静音';
   }
 }

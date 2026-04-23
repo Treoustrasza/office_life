@@ -579,7 +579,7 @@ function togglePanel(id) {
     const collapsed = panel.classList.toggle('collapsed');
     ['right-events-arrow', 'right-stats-arrow'].forEach(aid => {
       const arrow = document.getElementById(aid);
-      if (arrow) arrow.textContent = collapsed ? '◀' : '▶';
+      if (arrow) arrow.textContent = collapsed ? '◀' : '◀';
     });
   }
 }
@@ -726,7 +726,7 @@ function setVolume(val) {
 
 function updatePlayerUI() {
   const btn = document.getElementById('music-play-btn');
-  if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
+  if (btn) btn.textContent = isPlaying ? '||' : '▶';
 
   const vinyl = document.getElementById('music-vinyl');
   if (vinyl) {

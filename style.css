@@ -31,7 +31,7 @@ body {
     box-sizing: border-box;
   }
   #title-left {
-    font-size: 8px;
+    font-size: 14px;
     color: #a8b2d8;
     min-width: 160px;
   }
@@ -55,10 +55,10 @@ body {
   #clock {
     font-size: 12px;
     color: #64ffda;
-    background: #0f3460;
+    /* background: #0f3460; */
     padding: 8px;
-    border: 1px solid #64ffda;
-    min-width: 160px;
+    /* border: 1px solid #64ffda; */
+    min-width: 200px;
     text-align: right;
   }
 
@@ -105,8 +105,8 @@ body {
   /* 标题条：折叠后竖排显示 */
   .side-panel-header {
     background: #0f3460;
-    padding: 8px 6px;
-    font-size: 8px;
+    padding: 10px 10px;
+    font-size: 16px;
     color: #e94560;
     cursor: pointer;
     display: flex;
@@ -116,23 +116,23 @@ body {
     border-bottom: 2px solid #1a3a6a;
     white-space: nowrap;
     overflow: hidden;
-    gap: 6px;
+    gap: 25px;
   }
   .side-panel-header:hover { background: #1a3a6a; }
 
   /* 折叠后标题条竖排 */
   .side-panel.collapsed .side-panel-header {
     writing-mode: vertical-rl;
-    padding: 10px 4px;
+    padding: 25px 1px;
     justify-content: flex-start;
-    gap: 8px;
+    gap: 20px;
     border-bottom: none;
-    border-right: 2px solid #1a3a6a;
+    border-right: 0px solid #1a3a6a;
     height: auto;
   }
   #right-panel.collapsed .side-panel-header {
     border-right: none;
-    border-left: 2px solid #1a3a6a;
+    border-left: 0px solid #1a3a6a;
   }
 
   /* 箭头：左侧展开时 ◀（提示可向左折叠），折叠后 ▶（提示可向右展开） */
@@ -144,7 +144,7 @@ body {
   /* 右侧展开时 ▶，折叠后 ◀ */
 
   .side-panel-body {
-    padding: 8px;
+    padding: 6px;
     overflow: hidden;
     transition: opacity 0.2s ease;
     opacity: 1;
@@ -153,17 +153,18 @@ body {
     display: none;
   }
   .panel-hint {
-    font-size: 6px;
-    color: #a8b2d8;
-    margin-bottom: 8px;
+    font-size: 12px;
+    color: #a8b2d87a;
+    margin-bottom: 10px;
     line-height: 1.6;
+    text-align: center;
   }
 
   /* 左侧头像网格 */
   #char-panel-inner {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
   }
 
   /* 右侧事件日志 */
@@ -178,13 +179,13 @@ body {
   #event-log::-webkit-scrollbar-track { background: #0f3460; }
   #event-log::-webkit-scrollbar-thumb { background: #e94560; }
   .event-placeholder {
-    font-size: 7px;
-    color: #a8b2d8;
+    font-size: 13px;
+    color: #a8b2d87a;
     text-align: center;
     padding: 8px 0;
   }
   .event-item {
-    font-size: 7px;
+    font-size: 13px;
     color: #fff;
     background: #0f3460;
     border-left: 3px solid #e94560;
@@ -195,7 +196,7 @@ body {
 
   /* 右侧数据统计 */
   .stat-row {
-    font-size: 7px;
+    font-size: 13px;
     color: #a8b2d8;
     padding: 6px 0;
     border-bottom: 1px solid #0f3460;
@@ -1074,8 +1075,8 @@ body {
 
   /* ===== 角色头像（侧边面板内） ===== */
   .char-avatar {
-    width: 32px;
-    height: 32px;
+    width: 70px;
+    height: 70px;
     border: 2px solid #0f3460;
     cursor: pointer;
     image-rendering: pixelated;
@@ -1341,9 +1342,9 @@ body {
    ============================================================ */
 #music-panel {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 320px;
+  bottom: 0%;
+  right: 0%;
+  width: 500;
   background: #16213e;
   border: 3px solid #64ffda;
   z-index: 1100;
@@ -1357,7 +1358,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 8px;
+  font-size: 11px;
   color: #64ffda;
   border-bottom: 2px solid #64ffda;
 }
@@ -1367,7 +1368,7 @@ body {
   color: #e94560;
   font-size: 8px;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 6px 8px;
   font-family: 'Press Start 2P', monospace;
 }
 .music-close-btn:hover { background: #e94560; color: #fff; }
@@ -1381,8 +1382,8 @@ body {
 }
 
 .music-vinyl {
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: radial-gradient(circle at 50%, #333 0%, #111 40%, #222 60%, #111 100%);
   border: 3px solid #444;
@@ -1409,17 +1410,17 @@ body {
 
 .music-info { flex: 1; min-width: 0; }
 .music-title {
-  font-size: 7px;
+  font-size: 11px;
   color: #ffd700;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .music-source {
-  font-size: 6px;
+  font-size: 13px;
   color: #a8b2d8;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .music-controls {
@@ -1450,7 +1451,7 @@ body {
   align-items: center;
   gap: 6px;
 }
-.music-vol-icon { font-size: 10px; }
+.music-vol-icon {font-size: 15px;}
 .music-volume {
   flex: 1;
   height: 4px;
@@ -1458,7 +1459,7 @@ body {
   cursor: pointer;
 }
 .music-vol-num {
-  font-size: 6px;
+  font-size: 9px;
   color: #64ffda;
   min-width: 20px;
 }
@@ -1478,7 +1479,7 @@ body {
   gap: 8px;
   padding: 6px 12px;
   cursor: pointer;
-  font-size: 6px;
+  font-size: 8px;
   color: #a8b2d8;
   border-bottom: 1px solid #0f3460;
 }

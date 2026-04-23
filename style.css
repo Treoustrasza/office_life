@@ -69,13 +69,17 @@ body {
     align-items: flex-start;
     gap: 0;
     width: 100%;
+    max-width: 1520px; /* 1200 场景 + 两侧面板 ~160px×2 */
+    min-width: 900px;
+    margin: 0 auto;
     overflow-x: hidden;
   }
 
   /* ===== 主场景容器 ===== */
   #game-world {
     flex: 1;
-    min-width: 0;
+    min-width: 900px;
+    max-width: 1200px;
     position: relative;
     margin-top: 1px;
     overflow-x: auto;
@@ -1127,12 +1131,20 @@ body {
   /* 告示牌 */
   .sign {
     position: absolute;
-    background: #ffd700;
-    border: 2px solid #b8860b;
-    padding: 6px 18px;
-    font-size: 12px;
-    color: #333;
+    background: #f5d98a;
+    border: 3px solid #a07020;
+    border-bottom: 5px solid #7a5010;
+    border-right: 4px solid #7a5010;
+    padding: 5px 14px 5px 10px;
+    font-family: 'ZCOOL KuaiLe', 'Press Start 2P', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a2e00;
+    letter-spacing: 0.5px;
+    text-shadow: none;
+    image-rendering: pixelated;
     z-index: 5;
+    white-space: nowrap;
   }
 
   /* 区域标题 */
@@ -1213,7 +1225,7 @@ body {
 .pixel-player {
   position: absolute;
   bottom: 40px;
-  left: 960px;
+  left: 80%;
   width: 64px;
   cursor: pointer;
   z-index: 5;

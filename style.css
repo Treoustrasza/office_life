@@ -92,14 +92,20 @@ body {
     align-self: flex-start;
     position: sticky;
     top: 0;
+    transition: width 0.3s ease;
+  }
+  .side-panel.collapsed {
+    width: 28px;
   }
   #right-panel {
     border-right: none;
     border-left: 3px solid #0f3460;
   }
+
+  /* 标题条：折叠后竖排显示 */
   .side-panel-header {
     background: #0f3460;
-    padding: 8px 10px;
+    padding: 8px 6px;
     font-size: 8px;
     color: #e94560;
     cursor: pointer;
@@ -108,23 +114,43 @@ body {
     align-items: center;
     user-select: none;
     border-bottom: 2px solid #1a3a6a;
+    white-space: nowrap;
+    overflow: hidden;
+    gap: 6px;
   }
   .side-panel-header:hover { background: #1a3a6a; }
+
+  /* 折叠后标题条竖排 */
+  .side-panel.collapsed .side-panel-header {
+    writing-mode: vertical-rl;
+    padding: 10px 4px;
+    justify-content: flex-start;
+    gap: 8px;
+    border-bottom: none;
+    border-right: 2px solid #1a3a6a;
+    height: auto;
+  }
+  #right-panel.collapsed .side-panel-header {
+    border-right: none;
+    border-left: 2px solid #1a3a6a;
+  }
+
+  /* 箭头：左侧展开时 ◀（提示可向左折叠），折叠后 ▶（提示可向右展开） */
   .panel-toggle-btn {
     color: #64ffda;
     font-size: 8px;
-    transition: transform 0.2s;
+    flex-shrink: 0;
   }
-  .panel-toggle-btn.collapsed { transform: rotate(180deg); }
+  /* 右侧展开时 ▶，折叠后 ◀ */
+
   .side-panel-body {
     padding: 8px;
     overflow: hidden;
-    transition: max-height 0.3s ease;
-    max-height: 2000px;
+    transition: opacity 0.2s ease;
+    opacity: 1;
   }
-  .side-panel-body.collapsed {
-    max-height: 0;
-    padding: 0 8px;
+  .side-panel.collapsed .side-panel-body {
+    display: none;
   }
   .panel-hint {
     font-size: 6px;

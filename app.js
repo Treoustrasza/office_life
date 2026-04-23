@@ -557,8 +557,8 @@ function triggerRandomEvent() {
     item.className = 'event-item';
     item.textContent = ev.msg;
     log.insertBefore(item, log.firstChild);
-    // 最多保留8条
-    while (log.children.length > 8) log.removeChild(log.lastChild);
+    // 最多保留3条
+    while (log.children.length > 3) log.removeChild(log.lastChild);
   }
 
   ev.action();
@@ -566,21 +566,22 @@ function triggerRandomEvent() {
 }
 
 // ===== 面板折叠 =====
+// 左侧：展开时箭头 ◀（提示可向左折叠），折叠后箭头 ▶（提示可向右展开）
+// 右侧：展开时箭头 ▶（提示可向右折叠），折叠后箭头 ◀（提示可向左展开）
 function togglePanel(id) {
-  // id 可以是 'left-panel'（整个左侧body）或 'right-events' / 'right-stats'
-  let bodyId, arrowId;
   if (id === 'left-panel') {
-    bodyId = 'left-panel-body';
-    arrowId = 'left-panel-arrow';
-  } else {
-    bodyId = id + '-body';
-    arrowId = id + '-arrow';
+    const panel = document.getElementById('left-panel');
+    const collapsed = panel.classList.toggle('collapsed');
+    const arrow = document.getElementById('left-panel-arrow');
+    if (arrow) arrow.textContent = collapsed ? '▶' : '◀';
+  } else if (id === 'right-events' || id === 'right-stats') {
+    const panel = document.getElementById('right-panel');
+    const collapsed = panel.classList.toggle('collapsed');
+    ['right-events-arrow', 'right-stats-arrow'].forEach(aid => {
+      const arrow = document.getElementById(aid);
+      if (arrow) arrow.textContent = collapsed ? '◀' : '▶';
+    });
   }
-  const body = document.getElementById(bodyId);
-  const arrow = document.getElementById(arrowId);
-  if (!body) return;
-  const collapsed = body.classList.toggle('collapsed');
-  if (arrow) arrow.classList.toggle('collapsed', collapsed);
 }
 setTimeout(triggerRandomEvent, 5000);
 

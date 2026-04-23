@@ -57,8 +57,9 @@ function updateStatCount() {
 
 // ===== 构建头像面板 =====
 function buildAvatarPanel() {
-  const panel = document.getElementById('char-panel');
-  Array.from(panel.querySelectorAll('.char-avatar')).forEach(a => a.remove());
+  const panel = document.getElementById('char-panel-inner');
+  if (!panel) return;
+  panel.innerHTML = '';
   characters.forEach(c => {
     const div = document.createElement('div');
     div.className = 'char-avatar' + (visibleChars.has(c.slug) ? ' active' : '');
@@ -546,13 +547,40 @@ function useVendingMachine(slug, charEl) {
 // ===== 随机事件触发 =====
 function triggerRandomEvent() {
   const ev = events[Math.floor(Math.random() * events.length)];
-  const notif = document.createElement('div');
-  notif.style.cssText = 'position:fixed;top:100px;right:15px;background:#0f3460;border:2px solid #e94560;color:#fff;font-family:"ZCOOL KuaiLe",monospace;font-size:14px;padding:10px 14px;z-index:500;max-width:320px;line-height:1.8';
-  notif.textContent = ev.msg;
-  document.body.appendChild(notif);
+
+  // 写入右侧事件日志
+  const log = document.getElementById('event-log');
+  if (log) {
+    const placeholder = log.querySelector('.event-placeholder');
+    if (placeholder) placeholder.remove();
+    const item = document.createElement('div');
+    item.className = 'event-item';
+    item.textContent = ev.msg;
+    log.insertBefore(item, log.firstChild);
+    // 最多保留8条
+    while (log.children.length > 8) log.removeChild(log.lastChild);
+  }
+
   ev.action();
-  setTimeout(() => notif.remove(), 4000);
   setTimeout(triggerRandomEvent, 8000 + Math.random() * 12000);
+}
+
+// ===== 面板折叠 =====
+function togglePanel(id) {
+  // id 可以是 'left-panel'（整个左侧body）或 'right-events' / 'right-stats'
+  let bodyId, arrowId;
+  if (id === 'left-panel') {
+    bodyId = 'left-panel-body';
+    arrowId = 'left-panel-arrow';
+  } else {
+    bodyId = id + '-body';
+    arrowId = id + '-arrow';
+  }
+  const body = document.getElementById(bodyId);
+  const arrow = document.getElementById(arrowId);
+  if (!body) return;
+  const collapsed = body.classList.toggle('collapsed');
+  if (arrow) arrow.classList.toggle('collapsed', collapsed);
 }
 setTimeout(triggerRandomEvent, 5000);
 

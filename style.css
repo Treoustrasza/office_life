@@ -10,11 +10,10 @@ body {
   background: #1a1a2e;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   min-height: 100vh;
   overflow-x: hidden;
   font-family: "Press Start 2P", monospace, sans-serif;
-
 }
 
 
@@ -23,43 +22,165 @@ body {
     width: 100%;
     background: #16213e;
     border-bottom: 4px solid #0f3460;
-    padding: 8px 0 8px;
-    text-align: center;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: relative;
     z-index: 100;
+    box-sizing: border-box;
+  }
+  #title-left {
+    font-size: 8px;
+    color: #a8b2d8;
+    min-width: 160px;
+  }
+  #title-left span { color: #64ffda; }
+  #title-center {
+    text-align: center;
+    flex: 1;
   }
   #title-bar h1 {
-    font-size: 28px;
+    font-size: 22px;
     color: #e94560;
     text-shadow: 1px 1px 0 #0f3460, -1px -1px 0 #ff6b9d;
     letter-spacing: 2px;
-    image-rendering: pixelated;
   }
   #title-bar p {
-    font-size: 12px;
+    font-size: 10px;
     color: #a8b2d8;
-    margin-top: 6px;
+    margin-top: 4px;
     letter-spacing: 1px;
   }
   #clock {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
     font-size: 12px;
     color: #64ffda;
     background: #0f3460;
-    padding: 8px 8px;
+    padding: 8px;
     border: 1px solid #64ffda;
+    min-width: 160px;
+    text-align: right;
+  }
+
+  /* ===== 三栏主布局 ===== */
+  #main-layout {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   /* ===== 主场景容器 ===== */
   #game-world {
-    width: 1200px;
-    max-width: 100vw;
+    flex: 1;
+    min-width: 0;
     position: relative;
     margin-top: 1px;
+    overflow-x: auto;
   }
+
+  /* ===== 侧边面板通用 ===== */
+  .side-panel {
+    width: 160px;
+    flex-shrink: 0;
+    background: #16213e;
+    border-right: 3px solid #0f3460;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    position: sticky;
+    top: 0;
+  }
+  #right-panel {
+    border-right: none;
+    border-left: 3px solid #0f3460;
+  }
+  .side-panel-header {
+    background: #0f3460;
+    padding: 8px 10px;
+    font-size: 8px;
+    color: #e94560;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    border-bottom: 2px solid #1a3a6a;
+  }
+  .side-panel-header:hover { background: #1a3a6a; }
+  .panel-toggle-btn {
+    color: #64ffda;
+    font-size: 8px;
+    transition: transform 0.2s;
+  }
+  .panel-toggle-btn.collapsed { transform: rotate(180deg); }
+  .side-panel-body {
+    padding: 8px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    max-height: 2000px;
+  }
+  .side-panel-body.collapsed {
+    max-height: 0;
+    padding: 0 8px;
+  }
+  .panel-hint {
+    font-size: 6px;
+    color: #a8b2d8;
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  /* 左侧头像网格 */
+  #char-panel-inner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  /* 右侧事件日志 */
+  #event-log {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  #event-log::-webkit-scrollbar { width: 3px; }
+  #event-log::-webkit-scrollbar-track { background: #0f3460; }
+  #event-log::-webkit-scrollbar-thumb { background: #e94560; }
+  .event-placeholder {
+    font-size: 7px;
+    color: #a8b2d8;
+    text-align: center;
+    padding: 8px 0;
+  }
+  .event-item {
+    font-size: 7px;
+    color: #fff;
+    background: #0f3460;
+    border-left: 3px solid #e94560;
+    padding: 5px 6px;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+
+  /* 右侧数据统计 */
+  .stat-row {
+    font-size: 7px;
+    color: #a8b2d8;
+    padding: 6px 0;
+    border-bottom: 1px solid #0f3460;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    line-height: 1.8;
+  }
+  .stat-row span { color: #64ffda; }
 
   /* ===== 楼层标签 ===== */
   .floor-label {
@@ -925,47 +1046,10 @@ body {
     animation: drink 2s ease-in-out infinite;
   }
 
-  /* ===== 底部状态栏 ===== */
-  #status-bar {
-    width: 1200px;
-    max-width: 100vw;
-    background: #16213e;
-    border-top: 3px solid #0f3460;
-    padding: 8px 16px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .stat-item {
-    font-size: 15px;
-    color: #a8b2d8;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .stat-item span { color: #64ffda; }
-
-  /* ===== 角色面板 ===== */
-  #char-panel {
-    width: 1200px;
-    max-width: 100vw;
-    background: #16213e;
-    border-top: 3px solid #0f3460;
-    padding: 10px 16px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  #char-panel .panel-title {
-    font-size: 7px;
-    color: #e94560;
-    margin-right: 4px;
-  }
+  /* ===== 角色头像（侧边面板内） ===== */
   .char-avatar {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 2px solid #0f3460;
     cursor: pointer;
     image-rendering: pixelated;
@@ -1087,16 +1171,9 @@ body {
   transition: width 0.5s;
 }
 
-/* 滚动提示 */
+/* 滚动提示（隐藏，三栏布局不再需要） */
 #scroll-hint {
-  font-size: 7px;
-  color: #a8b2d8;
-  text-align: center;
-  padding: 6px;
-  background: #16213e;
-  width: 1200px;
-  max-width: 100vw;
-  animation: pulse 2s infinite;
+  display: none;
 }
 @keyframes pulse {
   0%,100% { opacity: 1; }

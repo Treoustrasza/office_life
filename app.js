@@ -129,8 +129,18 @@ let _drag = null;
 const DRAG_THRESHOLD = 5; // px，超过此距离才算拖拽
 
 function _initCharDrag() {
-  // 用 Pointer Events 委托，天然支持鼠标和触摸，且不被原生 drag 系统劫持
+  // pointerdown 委托到 document，捕获所有角色的按下事件
   document.addEventListener('pointerdown', _onPointerDown);
+
+  // pointermove / pointerup / pointercancel 也绑在 document 上。
+  // 关键原因：_beginDrag 会把 charEl 从 scene 移到 game-world，
+  // 若监听器绑在 charEl 上，DOM 移动后部分浏览器的 pointer capture 会静默失效，
+  // 导致 pointermove 卡住、pointerup 收不到，角色永远悬在空中。
+  // 绑在 document 上则完全不受 DOM 结构变化影响。
+  document.addEventListener('pointermove',   _onPointerMove);
+  document.addEventListener('pointerup',     _onPointerUp);
+  document.addEventListener('pointercancel', _onPointerUp);
+
   // 阻止图片/元素的原生拖拽行为（否则 pointermove 会被 dragstart 打断）
   document.addEventListener('dragstart', e => {
     if (e.target.closest('.character')) e.preventDefault();
@@ -144,29 +154,24 @@ function _onPointerDown(e) {
 
   e.preventDefault(); // 阻止文字选中、滚动等默认行为
 
+  // 如果上次拖拽因鼠标移出窗口等原因没有正常结束，先强制落地清理
+  if (_drag) _forceEndDrag(_drag.lastX ?? _drag.startX, _drag.startY);
+
   const rect = charEl.getBoundingClientRect();
   _drag = {
-    slug:      charEl.id.replace('char-', ''),
+    slug:       charEl.id.replace('char-', ''),
     charEl,
-    pointerId: e.pointerId,
-    startX:    e.clientX,
-    startY:    e.clientY,
-    // 记录鼠标在角色内的偏移，用于拖拽跟随
-    offsetX:   e.clientX - rect.left,
-    offsetY:   e.clientY - rect.top,
-    charW:     rect.width,
-    charH:     rect.height,
-    moved:     false,
+    pointerId:  e.pointerId,
+    startX:     e.clientX,
+    startY:     e.clientY,
+    offsetX:    e.clientX - rect.left,
+    offsetY:    e.clientY - rect.top,
+    charW:      rect.width,
+    charH:      rect.height,
+    moved:      false,
     origZoneEl: charEl.parentElement,
-    // 记录上一帧 clientX，用于朝向判断
-    lastX:     e.clientX,
+    lastX:      e.clientX,
   };
-
-  // 把指针捕获到角色元素上：即使鼠标移出元素，pointermove/pointerup 仍会触发
-  charEl.setPointerCapture(e.pointerId);
-  charEl.addEventListener('pointermove', _onPointerMove);
-  charEl.addEventListener('pointerup',   _onPointerUp);
-  charEl.addEventListener('pointercancel', _onPointerUp);
 }
 
 function _onPointerMove(e) {
@@ -192,7 +197,7 @@ function _onPointerMove(e) {
   charEl.style.left = x + 'px';
   charEl.style.top  = y + 'px';
 
-  // 更新朝向（用与上一帧的差值，避免抖动）
+  // 更新朝向（用帧间差值，避免抖动）
   const frameDx = e.clientX - _drag.lastX;
   if (Math.abs(frameDx) > 1) {
     const imgEl = charEl.querySelector('img');
@@ -205,36 +210,49 @@ function _onPointerMove(e) {
 
 function _onPointerUp(e) {
   if (!_drag || e.pointerId !== _drag.pointerId) return;
+  _settleDrag(e.clientX, e.clientY);
+}
 
-  const charEl = _drag.charEl;
-  charEl.removeEventListener('pointermove', _onPointerMove);
-  charEl.removeEventListener('pointerup',   _onPointerUp);
-  charEl.removeEventListener('pointercancel', _onPointerUp);
-  charEl.releasePointerCapture(e.pointerId);
+/**
+ * 强制结束拖拽（用于异常情况兜底，如鼠标移出窗口后再回来）。
+ * 使用上次记录的坐标落地。
+ */
+function _forceEndDrag(clientX, clientY) {
+  if (!_drag) return;
+  if (_drag.moved) {
+    _settleDrag(clientX, clientY);
+  } else {
+    // 未开始真正拖拽，直接清理
+    _drag = null;
+  }
+}
 
-  const { slug, moved } = _drag;
+/**
+ * 落地逻辑：确定目标区域，把角色放入并贴地，恢复 AI。
+ * 由 _onPointerUp 和 _forceEndDrag 共同调用。
+ */
+function _settleDrag(clientX, clientY) {
+  const { slug, moved, charEl, charW: savedCharW, origZoneEl } = _drag;
+  _drag = null; // 先清空，防止落地过程中的任何回调再次触发
 
   if (!moved) {
-    // 未移动 → 视为点击，弹出信息
-    _drag = null;
     showInfo(slug);
     return;
   }
 
-  // 确定落点区域：优先精确命中，否则找垂直方向最近的 scene
-  const targetZoneEl = _findDropZone(e.clientX, e.clientY);
-  const newZone = Object.keys(ZONE_IDS).find(k => ZONE_IDS[k] === targetZoneEl.id) || charEl.dataset.zone;
+  // 确定落点区域
+  const targetZoneEl = _findDropZone(clientX, clientY);
+  const newZone = Object.keys(ZONE_IDS).find(k => ZONE_IDS[k] === targetZoneEl.id)
+    ?? charEl.dataset.zone;
 
-  // X 轴：让角色中心对齐指针，夹在 scene 宽度内
+  // X 轴：角色中心对齐指针，夹在 scene 宽度内
   const sceneRect = targetZoneEl.getBoundingClientRect();
-  const charW = _drag.charW || 60;
-  const rawX = e.clientX - sceneRect.left - charW / 2;
+  const charW = savedCharW || 60;
+  const rawX = clientX - sceneRect.left - charW / 2;
   const finalX = Math.max(0, Math.min(rawX, sceneRect.width - charW));
 
-  // 放入目标 scene，清除拖拽期间的 inline 定位，重新贴地
-  // 注意：必须先 appendChild 再设 style，否则 bottom 在旧父元素坐标系下生效
+  // 先 appendChild 再设 style，确保 bottom 在新父元素坐标系下生效
   targetZoneEl.appendChild(charEl);
-  // 清除所有可能残留的定位属性，确保 bottom 生效
   charEl.style.cssText = [
     'position:absolute',
     `left:${finalX}px`,
@@ -244,8 +262,6 @@ function _onPointerUp(e) {
   charEl.dataset.zone = newZone;
 
   document.querySelectorAll('.scene').forEach(s => s.classList.remove('drop-target'));
-
-  _drag = null;
 
   // 恢复 AI
   setTimeout(() => {
@@ -271,7 +287,6 @@ function _beginDrag() {
   const y = charRect.top  - gwRect.top;
 
   gameWorld.appendChild(charEl);
-  // 用 cssText 一次性设置，避免多次 reflow
   charEl.style.cssText = [
     'position:absolute',
     `left:${x}px`,

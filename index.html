@@ -42,6 +42,7 @@
       <div id="char-panel-inner">
         <!-- 头像由JS动态生成 -->
       </div>
+      <button id="add-char-btn" onclick="openAddCharModal()" title="添加自定义角色">＋ 添加角色</button>
     </div>
   </div>
 
@@ -163,34 +164,40 @@
       <div class="floor-tiles"></div>
 
       <!-- 角色们 (office) -->
-      <div class="character" id="char-naruhodou" style="bottom:40px;left:8.3%" onclick="showInfo('naruhodou')">
+      <div class="character" id="char-naruhodou" style="bottom:40px;left:8.3%">
         <img src="chars/naruhodou.png" alt="成步堂">
         <div class="char-name">成步堂 · 律师</div>
         <div class="status-icon" id="icon-naruhodou">⚖️</div>
       </div>
 
-      <div class="character" id="char-mayoi" style="bottom:40px;left:23.3%" onclick="showInfo('mayoi')">
+      <div class="character" id="char-mayoi" style="bottom:40px;left:23.3%">
         <img src="chars/mayoi.png" alt="真宵">
         <div class="char-name">真宵 · 灵媒（见习）</div>
         <div class="status-icon" id="icon-mayoi">👻</div>
       </div>
 
-      <div class="character" id="char-chihiro" style="bottom:40px;left:38.3%" onclick="showInfo('chihiro')">
+      <div class="character" id="char-chihiro" style="bottom:40px;left:38.3%">
         <img src="chars/chihiro.png" alt="千寻">
         <div class="char-name">千寻 · 老板</div>
         <div class="status-icon" id="icon-chihiro">📁</div>
       </div>
 
-      <div class="character" id="char-mitsurugi" style="bottom:40px;left:53.3%" onclick="showInfo('mitsurugi')">
+      <div class="character" id="char-mitsurugi" style="bottom:40px;left:53.3%">
         <img src="chars/mitsurugi.png" alt="御剑">
         <div class="char-name">御剑 · 竞对高管</div>
         <div class="status-icon" id="icon-mitsurugi">🗡️</div>
       </div>
 
-      <div class="character" id="char-itonokogiri" style="bottom:40px;left:68.3%" onclick="showInfo('itonokogiri')">
+      <div class="character" id="char-itonokogiri" style="bottom:40px;left:68.3%">
         <img src="chars/itonokogiri.png" alt="糸锯">
         <div class="char-name">糸锯 · 没有钱</div>
         <div class="status-icon" id="icon-itonokogiri">🔍</div>
+      </div>
+
+      <div class="character" id="char-lawyer2" style="bottom:40px;left:83.3%">
+        <img src="chars/lawyer2.png" alt="不知名大叔">
+        <div class="char-name">不知名大叔 · 洗手间主理人</div>
+        <div class="status-icon" id="icon-lawyer2">⚖️</div>
       </div>
 
     </div>
@@ -271,25 +278,25 @@
       <div class="floor-tiles"></div>
 
       <!-- 茶水间角色 -->
-      <div class="character" id="char-yahari" style="bottom:40px;left:15%" onclick="showInfo('yahari')">
+      <div class="character" id="char-yahari" style="bottom:40px;left:15%">
         <img src="chars/yahari.png" alt="矢张">
         <div class="char-name">矢张 · 幕后黑手</div>
         <div class="status-icon" id="icon-yahari">🚔</div>
       </div>
 
-      <div class="character" id="char-pink_lady" style="bottom:40px;left:35%" onclick="showInfo('pink_lady')">
+      <div class="character" id="char-pink_lady" style="bottom:40px;left:35%">
         <img src="chars/pink_lady.png" alt="粉色小姐">
         <div class="char-name">粉色小姐 · 只是秘书</div>
         <div class="status-icon" id="icon-pink_lady">🌸</div>
       </div>
 
-      <div class="character" id="char-ooba" style="bottom:40px;left:55%" onclick="showInfo('ooba')">
+      <div class="character" id="char-ooba" style="bottom:40px;left:55%">
         <img src="chars/ooba.png" alt="大场香">
         <div class="char-name">大场香 · 前台</div>
         <div class="status-icon" id="icon-ooba">⚖️</div>
       </div>
 
-      <div class="character" id="char-bentou" style="bottom:40px;left:88.3%" onclick="showInfo('bentou')">
+      <div class="character" id="char-bentou" style="bottom:40px;left:88.3%">
         <img src="chars/bentou.png" alt="要买盒饭吗">
         <div class="char-name">要买盒饭吗 · 小贩（？）</div>
         <div class="status-icon" id="icon-bentou">🍱</div>
@@ -353,37 +360,37 @@
       <div class="floor-tiles" style="background:repeating-linear-gradient(90deg,#d0d8e8 0px,#d0d8e8 39px,#c0c8d8 39px,#c0c8d8 40px)"></div>
 
       <!-- 洗手间角色 -->
-      <div class="character" id="char-shogun" style="bottom:40px;left:16.7%" onclick="showInfo('shogun')">
+      <div class="character" id="char-shogun" style="bottom:40px;left:16.7%">
         <img src="chars/shogun.png" alt="将军超人">
         <div class="char-name">将军超人 · 大家的偶像</div>
         <div class="status-icon" id="icon-shogun">🤖</div>
       </div>
 
-      <div class="character" id="char-houtsuki" style="bottom:40px;left:37.5%" onclick="showInfo('houtsuki')">
+      <div class="character" id="char-houtsuki" style="bottom:40px;left:37.5%">
         <img src="chars/houtsuki.png" alt="宝月巴">
         <div class="char-name">宝月巴 · 竞对老板</div>
         <div class="status-icon" id="icon-houtsuki">🔎</div>
       </div>
 
-      <div class="character" id="char-sayuri" style="bottom:40px;left:56.7%" onclick="showInfo('sayuri')">
+      <div class="character" id="char-sayuri" style="bottom:40px;left:56.7%">
         <img src="chars/sayuri.png" alt="小百合">
         <div class="char-name">小百合 · 不要忘记……</div>
         <div class="status-icon" id="icon-sayuri">🌸</div>
       </div>
 
-      <div class="character" id="char-cowboy" style="bottom:40px;left:71.7%" onclick="showInfo('cowboy')">
+      <div class="character" id="char-cowboy" style="bottom:40px;left:71.7%">
         <img src="chars/cowboy.png" alt="牛仔">
         <div class="char-name">牛仔（？） · 无所事事的家伙</div>
         <div class="status-icon" id="icon-cowboy">🤠</div>
       </div>
 
-      <div class="character" id="char-mystery" style="bottom:40px;left:85%" onclick="showInfo('mystery')">
+      <div class="character" id="char-mystery" style="bottom:40px;left:85%">
         <img src="chars/mystery.png" alt="神秘摇晃立牌">
         <div class="char-name">神秘立牌 · ???</div>
         <div class="status-icon" id="icon-mystery">❓</div>
       </div>
 
-      <div class="character" id="char-guard" style="bottom:40px;left:62.5%" onclick="showInfo('guard')">
+      <div class="character" id="char-guard" style="bottom:40px;left:62.5%">
         <img src="chars/guard.png" alt="保安">
         <div class="char-name">保安 · 敬礼！</div>
         <div class="status-icon" id="icon-guard">🛡️</div>
@@ -469,6 +476,85 @@
   </div>
 </div>
 <div id="music-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1099" onclick="toggleMusicPanel()"></div>
+
+<!-- ===== 自定义角色弹窗 ===== -->
+<div id="add-char-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000" onclick="closeAddCharModal(event)"></div>
+<div id="add-char-modal" style="display:none">
+  <div class="acm-header">
+    <span>🧑‍💼 添加自定义角色</span>
+    <button class="acm-close-btn" onclick="closeAddCharModal()">╳</button>
+  </div>
+
+  <!-- 步骤1：上传图片 -->
+  <div id="acm-step1" class="acm-step">
+    <div class="acm-step-title">① 上传角色图片</div>
+    <div class="acm-upload-hint">仅支持透明底 PNG 文件</div>
+    <label class="acm-upload-label" id="acm-upload-label">
+      <input type="file" id="acm-file-input" accept="image/png" onchange="handleCharImageUpload(event)">
+      <span id="acm-upload-text">📁 点击选择 PNG 文件</span>
+    </label>
+    <div id="acm-upload-error" class="acm-error" style="display:none"></div>
+  </div>
+
+  <!-- 步骤2：裁剪 -->
+  <div id="acm-step2" class="acm-step" style="display:none">
+    <div class="acm-step-title">② 裁剪图片（拖拽调整选区）</div>
+    <div class="acm-crop-hint">
+      <span>适应模式：</span>
+      <button class="acm-mode-btn active" id="acm-mode-width" onclick="setCropMode('width')">等宽</button>
+      <button class="acm-mode-btn" id="acm-mode-height" onclick="setCropMode('height')">等高</button>
+      <button class="acm-mode-btn" id="acm-mode-free" onclick="setCropMode('free')">自由</button>
+    </div>
+    <div class="acm-crop-wrap" id="acm-crop-wrap">
+      <canvas id="acm-crop-canvas"></canvas>
+      <div id="acm-crop-selection"></div>
+    </div>
+    <div class="acm-crop-actions">
+      <button class="acm-btn-secondary" onclick="resetCrop()">重置选区</button>
+      <button class="acm-btn-primary" onclick="confirmCrop()">确认裁剪 ▶</button>
+    </div>
+  </div>
+
+  <!-- 步骤3：填写信息 -->
+  <div id="acm-step3" class="acm-step" style="display:none">
+    <div class="acm-step-title">③ 填写角色信息</div>
+    <div class="acm-preview-row">
+      <canvas id="acm-preview-canvas" class="acm-preview-canvas"></canvas>
+      <div class="acm-form">
+        <label class="acm-label">角色名称 <span class="acm-required">*</span>
+          <input type="text" id="acm-name" class="acm-input" placeholder="例：张三" maxlength="10">
+        </label>
+        <label class="acm-label">职位/头衔
+          <input type="text" id="acm-title" class="acm-input" placeholder="例：摸鱼专员" maxlength="20">
+        </label>
+        <label class="acm-label">个人简介（弹窗引用语）
+          <input type="text" id="acm-quote" class="acm-input" placeholder="例：&quot;今天也要好好摸鱼&quot;" maxlength="40">
+        </label>
+        <label class="acm-label">台词（多条用 | 分隔）
+          <textarea id="acm-phrases" class="acm-textarea" placeholder="例：今天也要摸鱼！|又到下班时间了|好困啊……" rows="3"></textarea>
+        </label>
+        <label class="acm-label">初始区域
+          <select id="acm-zone" class="acm-input">
+            <option value="office">工位区</option>
+            <option value="kitchen">茶水间</option>
+            <option value="toilet">洗手间</option>
+          </select>
+        </label>
+        <label class="acm-label">图片朝向
+          <select id="acm-facing" class="acm-input">
+            <option value="right">面朝右</option>
+            <option value="left">面朝左</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div id="acm-form-error" class="acm-error" style="display:none"></div>
+    <div class="acm-form-actions">
+      <button class="acm-btn-secondary" onclick="backToCrop()">◀ 重新裁剪</button>
+      <button class="acm-btn-primary" onclick="confirmAddChar()">✔ 加入场景</button>
+    </div>
+  </div>
+</div>
 
 <!-- 先加载角色数据，再加载逻辑 -->
 <script src="characters.js"></script>

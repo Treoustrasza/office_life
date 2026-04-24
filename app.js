@@ -69,6 +69,20 @@ function buildAvatarPanel() {
     img.alt = c.name;
     div.appendChild(img);
     div.addEventListener('click', () => toggleChar(c.slug, div));
+
+    // 自定义角色：叠加删除按钮
+    if (c.isCustom) {
+      const del = document.createElement('button');
+      del.className = 'char-avatar-del';
+      del.title = '删除 ' + c.name;
+      del.textContent = '✕';
+      del.addEventListener('click', e => {
+        e.stopPropagation(); // 不触发 toggleChar
+        removeCustomChar(c.slug);
+      });
+      div.appendChild(del);
+    }
+
     panel.appendChild(div);
   });
 }
@@ -103,6 +117,209 @@ function showPhrase(charEl, phrase) {
   bubble.textContent = phrase;
   charEl.appendChild(bubble);
   setTimeout(() => bubble.remove(), 3000);
+}
+
+// ===== 角色拖拽 =====
+// 被用户拖拽暂停 AI 的角色集合
+const _dragPaused = new Set();
+
+// 拖拽状态
+let _drag = null;
+
+const DRAG_THRESHOLD = 5; // px，超过此距离才算拖拽
+
+function _initCharDrag() {
+  // 用 Pointer Events 委托，天然支持鼠标和触摸，且不被原生 drag 系统劫持
+  document.addEventListener('pointerdown', _onPointerDown);
+  // 阻止图片/元素的原生拖拽行为（否则 pointermove 会被 dragstart 打断）
+  document.addEventListener('dragstart', e => {
+    if (e.target.closest('.character')) e.preventDefault();
+  });
+}
+
+function _onPointerDown(e) {
+  if (e.button !== 0 && e.pointerType === 'mouse') return; // 只响应左键
+  const charEl = e.target.closest('.character');
+  if (!charEl || charEl.style.display === 'none') return;
+
+  e.preventDefault(); // 阻止文字选中、滚动等默认行为
+
+  const rect = charEl.getBoundingClientRect();
+  _drag = {
+    slug:      charEl.id.replace('char-', ''),
+    charEl,
+    pointerId: e.pointerId,
+    startX:    e.clientX,
+    startY:    e.clientY,
+    // 记录鼠标在角色内的偏移，用于拖拽跟随
+    offsetX:   e.clientX - rect.left,
+    offsetY:   e.clientY - rect.top,
+    charW:     rect.width,
+    charH:     rect.height,
+    moved:     false,
+    origZoneEl: charEl.parentElement,
+    // 记录上一帧 clientX，用于朝向判断
+    lastX:     e.clientX,
+  };
+
+  // 把指针捕获到角色元素上：即使鼠标移出元素，pointermove/pointerup 仍会触发
+  charEl.setPointerCapture(e.pointerId);
+  charEl.addEventListener('pointermove', _onPointerMove);
+  charEl.addEventListener('pointerup',   _onPointerUp);
+  charEl.addEventListener('pointercancel', _onPointerUp);
+}
+
+function _onPointerMove(e) {
+  if (!_drag || e.pointerId !== _drag.pointerId) return;
+  e.preventDefault();
+
+  const dx = e.clientX - _drag.startX;
+  const dy = e.clientY - _drag.startY;
+
+  if (!_drag.moved) {
+    if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+    _drag.moved = true;
+    _beginDrag();
+  }
+
+  // 跟随指针：坐标相对于 game-world
+  const gameWorld = document.getElementById('game-world');
+  const gwRect = gameWorld.getBoundingClientRect();
+  const x = e.clientX - gwRect.left - _drag.offsetX;
+  const y = e.clientY - gwRect.top  - _drag.offsetY;
+
+  const charEl = _drag.charEl;
+  charEl.style.left = x + 'px';
+  charEl.style.top  = y + 'px';
+
+  // 更新朝向（用与上一帧的差值，避免抖动）
+  const frameDx = e.clientX - _drag.lastX;
+  if (Math.abs(frameDx) > 1) {
+    const imgEl = charEl.querySelector('img');
+    if (imgEl) imgEl.style.transform = getFacingScale(charEl, frameDx > 0);
+  }
+  _drag.lastX = e.clientX;
+
+  _highlightDropZone(e.clientX, e.clientY);
+}
+
+function _onPointerUp(e) {
+  if (!_drag || e.pointerId !== _drag.pointerId) return;
+
+  const charEl = _drag.charEl;
+  charEl.removeEventListener('pointermove', _onPointerMove);
+  charEl.removeEventListener('pointerup',   _onPointerUp);
+  charEl.removeEventListener('pointercancel', _onPointerUp);
+  charEl.releasePointerCapture(e.pointerId);
+
+  const { slug, moved } = _drag;
+
+  if (!moved) {
+    // 未移动 → 视为点击，弹出信息
+    _drag = null;
+    showInfo(slug);
+    return;
+  }
+
+  // 确定落点区域：优先精确命中，否则找垂直方向最近的 scene
+  const targetZoneEl = _findDropZone(e.clientX, e.clientY);
+  const newZone = Object.keys(ZONE_IDS).find(k => ZONE_IDS[k] === targetZoneEl.id) || charEl.dataset.zone;
+
+  // X 轴：让角色中心对齐指针，夹在 scene 宽度内
+  const sceneRect = targetZoneEl.getBoundingClientRect();
+  const charW = _drag.charW || 60;
+  const rawX = e.clientX - sceneRect.left - charW / 2;
+  const finalX = Math.max(0, Math.min(rawX, sceneRect.width - charW));
+
+  // 放入目标 scene，清除拖拽期间的 inline 定位，重新贴地
+  // 注意：必须先 appendChild 再设 style，否则 bottom 在旧父元素坐标系下生效
+  targetZoneEl.appendChild(charEl);
+  // 清除所有可能残留的定位属性，确保 bottom 生效
+  charEl.style.cssText = [
+    'position:absolute',
+    `left:${finalX}px`,
+    'bottom:40px',
+  ].join(';');
+  charEl.classList.remove('dragging');
+  charEl.dataset.zone = newZone;
+
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('drop-target'));
+
+  _drag = null;
+
+  // 恢复 AI
+  setTimeout(() => {
+    _dragPaused.delete(slug);
+    updateFishIndex();
+    scheduleAction(slug, charEl);
+  }, 600);
+}
+
+function _beginDrag() {
+  const { slug, charEl } = _drag;
+
+  // 暂停 AI，停止所有动画状态
+  _dragPaused.add(slug);
+  charEl.classList.remove('walking', 'working', 'drinking', 'yawning');
+
+  // 脱离 scene，挂到 game-world 顶层自由移动（不受 scene overflow:hidden 裁剪）
+  const gameWorld = document.getElementById('game-world');
+  const gwRect    = gameWorld.getBoundingClientRect();
+  const charRect  = charEl.getBoundingClientRect();
+
+  const x = charRect.left - gwRect.left;
+  const y = charRect.top  - gwRect.top;
+
+  gameWorld.appendChild(charEl);
+  // 用 cssText 一次性设置，避免多次 reflow
+  charEl.style.cssText = [
+    'position:absolute',
+    `left:${x}px`,
+    `top:${y}px`,
+    'z-index:999',
+  ].join(';');
+  charEl.classList.add('dragging');
+}
+
+/**
+ * 找到鼠标所在的 scene。
+ * 策略：先做精确矩形命中；若未命中（如在 floor-label 区域），
+ * 则找垂直方向上距离最近的 scene（以 scene 中心 Y 为基准），
+ * 保证松手时始终能落到某个区域，不会因遮挡或间隙导致失败。
+ */
+function _findDropZone(clientX, clientY) {
+  let best = null;
+  let bestDist = Infinity;
+
+  for (const zoneId of Object.values(ZONE_IDS)) {
+    const el = document.getElementById(zoneId);
+    if (!el) continue;
+    const r = el.getBoundingClientRect();
+
+    // 精确命中：X 在 scene 范围内，Y 在 scene 范围内
+    if (clientX >= r.left && clientX <= r.right &&
+        clientY >= r.top  && clientY <= r.bottom) {
+      return el; // 直接返回，无需继续
+    }
+
+    // 未精确命中时，计算到 scene 的最短距离（矩形外距离）
+    const dx = Math.max(r.left - clientX, 0, clientX - r.right);
+    const dy = Math.max(r.top  - clientY, 0, clientY - r.bottom);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = el;
+    }
+  }
+
+  return best;
+}
+
+function _highlightDropZone(clientX, clientY) {
+  const target = _findDropZone(clientX, clientY);
+  document.querySelectorAll('.scene').forEach(s => {
+    s.classList.toggle('drop-target', s === target);
+  });
 }
 
 // ===== 角色移动 =====
@@ -186,6 +403,7 @@ function walkToZone(slug, charEl, newZone, onDone) {
 // ===== AI 行为调度 =====
 function scheduleAction(slug, charEl) {
   if (!charEl || charEl.style.display === 'none') return;
+  if (_dragPaused.has(slug)) return; // 正在被用户拖拽，跳过
   const char = characters.find(c => c.slug === slug);
   if (!char) return;
   charEl.classList.remove('working', 'drinking', 'yawning', 'walking');
@@ -414,8 +632,12 @@ function fadeCoffeeSfx(duration) {
 }
 
 // ===== 咖啡机交互 =====
-// 咖啡机在 kitchen-area，left:220px，角色站在旁边约 left:200px
-const COFFEE_MACHINE_X = 200;
+// 动态读取咖啡机在 kitchen-area 内的实际像素 left，角色站在其左侧约 20px 处
+function getCoffeeMachineX() {
+  const machineEl = document.querySelector('#kitchen-area .coffee-machine');
+  if (!machineEl) return 200;
+  return machineEl.offsetLeft - 20;
+}
 let coffeeMachineBusy = false; // 同一时间只允许一个角色使用
 
 function useCoffeeMachine(slug, charEl) {
@@ -429,7 +651,7 @@ function useCoffeeMachine(slug, charEl) {
   const machineEl = document.querySelector('#kitchen-area .coffee-machine');
 
   // 1. 走到咖啡机旁边
-  moveCharacter(charEl, COFFEE_MACHINE_X, () => {
+  moveCharacter(charEl, getCoffeeMachineX(), () => {
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = '☕';
 
@@ -464,8 +686,12 @@ function useCoffeeMachine(slug, charEl) {
 }
 
 // ===== 贩卖机交互 =====
-// 贩卖机在 kitchen-area，left:580px，角色站在旁边约 left:560px
-const VENDING_MACHINE_X = 560;
+// 动态读取贩卖机在 kitchen-area 内的实际像素 left，角色站在其左侧约 20px 处
+function getVendingMachineX() {
+  const vmEl = document.getElementById('vending-machine');
+  if (!vmEl) return 560;
+  return vmEl.offsetLeft - 20;
+}
 let vendingMachineBusy = false;
 
 function useVendingMachine(slug, charEl) {
@@ -478,7 +704,7 @@ function useVendingMachine(slug, charEl) {
   const vmEl = document.getElementById('vending-machine');
 
   // 1. 走到贩卖机旁边
-  moveCharacter(charEl, VENDING_MACHINE_X, () => {
+  moveCharacter(charEl, getVendingMachineX(), () => {
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = '🥤';
 
@@ -602,6 +828,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initMusicPlayer();
   initCoffeeSfx();
   initCanOpenSfx();
+  _initCharDrag(); // 启动角色拖拽
 });
 
 // ============================================================
@@ -781,4 +1008,432 @@ function toggleMute() {
     btn.classList.toggle('muted', isMuted);
     btn.title = isMuted ? '取消静音' : '静音';
   }
+}
+
+// ============================================================
+//  自定义角色功能
+// ============================================================
+
+// ----- 状态 -----
+let _acmOriginalImage = null;   // 原始 Image 对象
+let _acmCropRect = null;        // { x, y, w, h } 相对于 canvas 显示尺寸
+let _acmCroppedDataURL = null;  // 裁剪后的 dataURL
+let _acmCropMode = 'width';     // 'width' | 'height' | 'free'
+let _acmDragging = false;
+let _acmDragStart = null;
+let _acmCustomCount = 0;        // 自定义角色计数，用于生成唯一 slug
+
+// 参考尺寸：等宽/等高时对齐的目标
+const ACM_REF_WIDTH  = 80;   // px（场景中角色图片的典型宽度）
+const ACM_REF_HEIGHT = 80;   // px（场景中角色图片的典型高度）
+
+// ----- 打开/关闭弹窗 -----
+function openAddCharModal() {
+  _resetAcmState();
+  document.getElementById('add-char-overlay').style.display = 'block';
+  document.getElementById('add-char-modal').style.display = 'block';
+  _showAcmStep(1);
+}
+
+function closeAddCharModal(e) {
+  // 点击遮罩时关闭（排除弹窗本身）
+  if (e && e.target !== document.getElementById('add-char-overlay')) return;
+  document.getElementById('add-char-overlay').style.display = 'none';
+  document.getElementById('add-char-modal').style.display = 'none';
+  _resetAcmState();
+}
+
+function _resetAcmState() {
+  _acmOriginalImage = null;
+  _acmCropRect = null;
+  _acmCroppedDataURL = null;
+  _acmCropMode = 'width';
+  _acmDragging = false;
+  _acmDragStart = null;
+  // 重置文件输入
+  const fi = document.getElementById('acm-file-input');
+  if (fi) fi.value = '';
+  document.getElementById('acm-upload-text').textContent = '📁 点击选择 PNG 文件';
+  _hideAcmError('acm-upload-error');
+  _hideAcmError('acm-form-error');
+  // 清空步骤3表单
+  ['acm-name','acm-title','acm-quote','acm-phrases'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const zoneEl = document.getElementById('acm-zone');
+  if (zoneEl) zoneEl.value = 'office';
+  const facingEl = document.getElementById('acm-facing');
+  if (facingEl) facingEl.value = 'right';
+  // 重置裁剪模式按钮
+  _setActiveModeBtn('acm-mode-width');
+}
+
+function _showAcmStep(n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById('acm-step' + i);
+    if (el) el.style.display = i === n ? '' : 'none';
+  });
+}
+
+function _showAcmError(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function _hideAcmError(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+// ----- 步骤1：上传图片 -----
+function handleCharImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  _hideAcmError('acm-upload-error');
+
+  // 必须是 PNG
+  if (file.type !== 'image/png') {
+    _showAcmError('acm-upload-error', '❌ 请上传 PNG 格式的图片文件');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // 验证透明底：采样图片边缘像素，检查是否有透明通道
+      if (!_checkPngTransparency(img)) {
+        _showAcmError('acm-upload-error', '⚠️ 未检测到透明通道，请上传透明底 PNG（建议使用去背景工具处理后再上传）');
+        return;
+      }
+      _acmOriginalImage = img;
+      document.getElementById('acm-upload-text').textContent = '✔ ' + file.name;
+      // 进入裁剪步骤
+      _showAcmStep(2);
+      _initCropCanvas();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// 透明底检测：在 canvas 上绘制图片，采样若干像素的 alpha 通道
+// 只要有任意像素 alpha < 250，即认为有透明通道
+function _checkPngTransparency(img) {
+  const size = 200;
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, size, size);
+  const data = ctx.getImageData(0, 0, size, size).data;
+  // 采样策略：检查四角 + 中心区域的像素
+  const samplePositions = [];
+  // 四角 5x5 区域
+  for (let r = 0; r < 5; r++) {
+    for (let cc = 0; cc < 5; cc++) {
+      samplePositions.push([r, cc]);
+      samplePositions.push([r, size - 1 - cc]);
+      samplePositions.push([size - 1 - r, cc]);
+      samplePositions.push([size - 1 - r, size - 1 - cc]);
+    }
+  }
+  for (const [row, col] of samplePositions) {
+    const idx = (row * size + col) * 4;
+    if (data[idx + 3] < 250) return true;
+  }
+  // 全图随机采样 500 个像素
+  for (let i = 0; i < 500; i++) {
+    const idx = Math.floor(Math.random() * (size * size)) * 4;
+    if (data[idx + 3] < 250) return true;
+  }
+  return false;
+}
+
+// ----- 步骤2：裁剪 -----
+function _initCropCanvas() {
+  const img = _acmOriginalImage;
+  if (!img) return;
+
+  const canvas = document.getElementById('acm-crop-canvas');
+  const wrap = document.getElementById('acm-crop-wrap');
+
+  // 限制显示最大宽度
+  const maxW = wrap.clientWidth || 600;
+  const scale = Math.min(1, maxW / img.naturalWidth);
+  const dispW = Math.round(img.naturalWidth * scale);
+  const dispH = Math.round(img.naturalHeight * scale);
+
+  canvas.width  = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  canvas.style.width  = dispW + 'px';
+  canvas.style.height = dispH + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
+
+  // 初始化选区（全图）
+  _acmCropRect = { x: 0, y: 0, w: dispW, h: dispH };
+  _updateCropSelection();
+
+  // 绑定拖拽事件（先移除旧的）
+  const wrap2 = document.getElementById('acm-crop-wrap');
+  wrap2.onmousedown  = _onCropMouseDown;
+  wrap2.onmousemove  = _onCropMouseMove;
+  wrap2.onmouseup    = _onCropMouseUp;
+  wrap2.onmouseleave = _onCropMouseUp;
+  // 触摸支持
+  wrap2.ontouchstart = _onCropTouchStart;
+  wrap2.ontouchmove  = _onCropTouchMove;
+  wrap2.ontouchend   = _onCropMouseUp;
+}
+
+function _getWrapOffset(e) {
+  const wrap = document.getElementById('acm-crop-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: Math.max(0, Math.min(clientX - rect.left, rect.width)),
+    y: Math.max(0, Math.min(clientY - rect.top,  rect.height))
+  };
+}
+
+function _onCropMouseDown(e) {
+  e.preventDefault();
+  _acmDragging = true;
+  _acmDragStart = _getWrapOffset(e);
+  _acmCropRect = { x: _acmDragStart.x, y: _acmDragStart.y, w: 0, h: 0 };
+  _updateCropSelection();
+}
+function _onCropTouchStart(e) { e.preventDefault(); _onCropMouseDown(e); }
+
+function _onCropMouseMove(e) {
+  if (!_acmDragging) return;
+  e.preventDefault();
+  const pos = _getWrapOffset(e);
+  const canvas = document.getElementById('acm-crop-canvas');
+  const dispW = parseInt(canvas.style.width);
+  const dispH = parseInt(canvas.style.height);
+
+  let x = Math.min(_acmDragStart.x, pos.x);
+  let y = Math.min(_acmDragStart.y, pos.y);
+  let w = Math.abs(pos.x - _acmDragStart.x);
+  let h = Math.abs(pos.y - _acmDragStart.y);
+
+  // 等宽/等高模式：锁定宽高比
+  if (_acmCropMode === 'width') {
+    // 等宽：宽度固定为图片宽度，高度自由
+    x = 0; w = dispW;
+  } else if (_acmCropMode === 'height') {
+    // 等高：高度固定为图片高度，宽度自由
+    y = 0; h = dispH;
+  }
+
+  _acmCropRect = { x, y, w, h };
+  _updateCropSelection();
+}
+function _onCropTouchMove(e) { e.preventDefault(); _onCropMouseMove(e); }
+
+function _onCropMouseUp(e) {
+  _acmDragging = false;
+}
+
+function _updateCropSelection() {
+  const sel = document.getElementById('acm-crop-selection');
+  const r = _acmCropRect;
+  if (!r || r.w < 2 || r.h < 2) {
+    sel.style.display = 'none';
+    return;
+  }
+  sel.style.display = 'block';
+  sel.style.left   = r.x + 'px';
+  sel.style.top    = r.y + 'px';
+  sel.style.width  = r.w + 'px';
+  sel.style.height = r.h + 'px';
+}
+
+function setCropMode(mode) {
+  _acmCropMode = mode;
+  _setActiveModeBtn('acm-mode-' + mode);
+  // 重置选区为全图
+  resetCrop();
+}
+
+function _setActiveModeBtn(activeId) {
+  ['acm-mode-width', 'acm-mode-height', 'acm-mode-free'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', id === activeId);
+  });
+}
+
+function resetCrop() {
+  const canvas = document.getElementById('acm-crop-canvas');
+  if (!canvas) return;
+  const dispW = parseInt(canvas.style.width)  || canvas.width;
+  const dispH = parseInt(canvas.style.height) || canvas.height;
+  _acmCropRect = { x: 0, y: 0, w: dispW, h: dispH };
+  _updateCropSelection();
+}
+
+function confirmCrop() {
+  const r = _acmCropRect;
+  const canvas = document.getElementById('acm-crop-canvas');
+  if (!r || r.w < 4 || r.h < 4) {
+    alert('请先拖拽选择裁剪区域');
+    return;
+  }
+
+  // 将显示坐标转换为原始图片坐标
+  const dispW = parseInt(canvas.style.width);
+  const dispH = parseInt(canvas.style.height);
+  const scaleX = canvas.width  / dispW;
+  const scaleY = canvas.height / dispH;
+
+  const srcX = Math.round(r.x * scaleX);
+  const srcY = Math.round(r.y * scaleY);
+  const srcW = Math.round(r.w * scaleX);
+  const srcH = Math.round(r.h * scaleY);
+
+  // 裁剪到新 canvas
+  const out = document.createElement('canvas');
+  out.width  = srcW;
+  out.height = srcH;
+  const ctx = out.getContext('2d');
+  ctx.drawImage(_acmOriginalImage, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+  _acmCroppedDataURL = out.toDataURL('image/png');
+
+  // 在步骤3预览
+  const preview = document.getElementById('acm-preview-canvas');
+  preview.width  = srcW;
+  preview.height = srcH;
+  preview.style.width  = '90px';
+  preview.style.height = '90px';
+  const pCtx = preview.getContext('2d');
+  pCtx.drawImage(out, 0, 0);
+
+  _showAcmStep(3);
+}
+
+function backToCrop() {
+  _showAcmStep(2);
+}
+
+// ----- 步骤3：确认添加角色 -----
+function confirmAddChar() {
+  _hideAcmError('acm-form-error');
+
+  const name = document.getElementById('acm-name').value.trim();
+  if (!name) {
+    _showAcmError('acm-form-error', '❌ 角色名称不能为空');
+    return;
+  }
+  if (!_acmCroppedDataURL) {
+    _showAcmError('acm-form-error', '❌ 请先完成图片裁剪');
+    return;
+  }
+
+  const title   = document.getElementById('acm-title').value.trim()   || '神秘人物';
+  const quote   = document.getElementById('acm-quote').value.trim()   || '"……"';
+  const rawPhrases = document.getElementById('acm-phrases').value.trim();
+  const phrases = rawPhrases
+    ? rawPhrases.split('|').map(s => s.trim()).filter(Boolean)
+    : ['……', '（沉默）'];
+  const zone    = document.getElementById('acm-zone').value;
+  const facing  = document.getElementById('acm-facing').value;
+
+  _acmCustomCount++;
+  const slug = 'custom_' + _acmCustomCount + '_' + Date.now();
+
+  // 构建角色数据对象
+  const charData = {
+    slug,
+    img: _acmCroppedDataURL,
+    facingRight: facing === 'right',
+    name,
+    title,
+    zone,
+    quote,
+    stats: { '职业': title, '类型': '自定义角色' },
+    phrases,
+    isCustom: true,
+  };
+
+  // 注入 characters 数组
+  characters.push(charData);
+  // 加入可见集合
+  visibleChars.add(slug);
+
+  // 动态创建角色 DOM 并插入对应区域
+  const charEl = _createCharElement(charData);
+  const zoneEl = document.getElementById(ZONE_IDS[zone]);
+  if (zoneEl) {
+    zoneEl.appendChild(charEl);
+  }
+
+  // 更新头像面板
+  buildAvatarPanel();
+  updateStatCount();
+  updateFishIndex();
+
+  // 启动 AI 行为
+  setTimeout(() => scheduleAction(slug, charEl), 500 + Math.random() * 1000);
+
+  // 关闭弹窗
+  document.getElementById('add-char-overlay').style.display = 'none';
+  document.getElementById('add-char-modal').style.display = 'none';
+  _resetAcmState();
+}
+
+// ----- 删除自定义角色 -----
+function removeCustomChar(slug) {
+  // 从 characters 数组移除
+  const idx = characters.findIndex(c => c.slug === slug);
+  if (idx === -1) return;
+  characters.splice(idx, 1);
+
+  // 从可见集合移除
+  visibleChars.delete(slug);
+
+  // 移除场景中的 DOM 元素
+  const charEl = document.getElementById('char-' + slug);
+  if (charEl) charEl.remove();
+
+  // 刷新面板和统计
+  buildAvatarPanel();
+  updateStatCount();
+  updateFishIndex();
+}
+
+// 动态创建角色 DOM 元素（与 index.html 中硬编码结构一致）
+function _createCharElement(c) {
+  const div = document.createElement('div');
+  div.className = 'character';
+  div.id = 'char-' + c.slug;
+  div.style.bottom = '40px';
+  div.style.left   = (80 + Math.random() * 800) + 'px';
+  div.dataset.zone = c.zone;
+  // showInfo 由拖拽系统统一处理（未移动时触发）
+
+  const img = document.createElement('img');
+  img.src = c.img;
+  img.alt = c.name;
+  // 自定义角色图片已经是 dataURL，不需要 pixelated 渲染也可以
+  img.style.imageRendering = 'auto';
+  div.appendChild(img);
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'char-name';
+  nameEl.textContent = c.name + ' · ' + c.title;
+  div.appendChild(nameEl);
+
+  const iconEl = document.createElement('div');
+  iconEl.className = 'status-icon';
+  iconEl.id = 'icon-' + c.slug;
+  iconEl.textContent = '✨';
+  div.appendChild(iconEl);
+
+  return div;
 }

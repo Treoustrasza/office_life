@@ -274,9 +274,10 @@ function _settleDrag(clientX, clientY) {
 function _beginDrag() {
   const { slug, charEl } = _drag;
 
-  // 暂停 AI，停止所有动画状态
+  // 暂停 AI，停止所有动画状态（含正在运行的移动 interval）
   _dragPaused.add(slug);
-  charEl.classList.remove('walking', 'working', 'drinking', 'yawning');
+  _stopMove(charEl);
+  charEl.classList.remove('working', 'drinking', 'yawning');
 
   // 脱离 scene，挂到 game-world 顶层自由移动（不受 scene overflow:hidden 裁剪）
   const gameWorld = document.getElementById('game-world');
@@ -348,8 +349,26 @@ function getFacingScale(charEl, movingRight) {
   return flip ? 'scaleX(-1)' : 'scaleX(1)';
 }
 
+// 每个角色当前正在运行的移动 interval，key = charEl，value = intervalId
+// 用于在新移动开始前取消旧的，防止多个 interval 并发导致漂移
+const _moveIntervals = new WeakMap();
+
+function _stopMove(charEl) {
+  const iv = _moveIntervals.get(charEl);
+  if (iv != null) {
+    clearInterval(iv);
+    _moveIntervals.delete(charEl);
+  }
+  charEl.classList.remove('walking');
+}
+
 function moveCharacter(charEl, targetX, onDone) {
-  const currentLeft = parseInt(charEl.style.left) || 0;
+  // 取消该角色上一次未完成的移动，防止多个 interval 并发漂移
+  _stopMove(charEl);
+
+  // 读取当前像素位置：style.left 可能是百分比（初始化时），
+  // 用 offsetLeft 获取实际像素值，避免 parseInt('8.3%') = 8 的错误
+  const currentLeft = charEl.offsetLeft;
   const diff = targetX - currentLeft;
   if (Math.abs(diff) < 2) { if (onDone) onDone(); return; }
   const dir = diff > 0 ? 1 : -1;
@@ -362,19 +381,22 @@ function moveCharacter(charEl, targetX, onDone) {
   if (imgEl) imgEl.style.transform = targetScale;
 
   const startMove = () => {
+    // 再次检查：翻转等待期间可能已被拖拽打断
+    if (_dragPaused.has(charEl.id.replace('char-', ''))) return;
     charEl.classList.add('walking');
-    let pos = currentLeft;
+    let pos = charEl.offsetLeft; // 重新读，避免翻转等待期间位置变化
     const iv = setInterval(() => {
       pos += dir * 1.5;
       if ((dir > 0 && pos >= targetX) || (dir < 0 && pos <= targetX)) {
         pos = targetX;
-        clearInterval(iv);
-        charEl.classList.remove('walking');
-        // 保留朝向，不强制复位
+        _stopMove(charEl);
         if (onDone) onDone();
+      } else {
+        charEl.style.left = pos + 'px';
       }
-      charEl.style.left = pos + 'px';
     }, 16);
+    _moveIntervals.set(charEl, iv);
+    charEl.style.left = pos + 'px'; // 立即设一次，避免第一帧延迟
   };
 
   if (alreadyFacing) {
@@ -392,17 +414,23 @@ function walkToZone(slug, charEl, newZone, onDone) {
 
   // 随机决定从左侧还是右侧离开
   const exitRight = Math.random() < 0.5;
-  const exitX = exitRight ? 1300 : -80;
-  const enterX = exitRight ? -80 : 1300;
-  const destX  = 80 + Math.random() * 900;
+  const exitX  = exitRight ? 1300 : -80;
+  const enterX = exitRight ? -80  : 1300;
+  // 目标 X 限制在 scene 宽度内，避免走出边界被 overflow:hidden 裁掉
+  const sceneW = zoneEl.offsetWidth || 900;
+  const destX  = 60 + Math.random() * Math.max(sceneW - 120, 200);
 
   // 1. 走到当前区域边缘（出镜）
   moveCharacter(charEl, exitX, () => {
     // 2. 移入目标区域，放在对侧边缘（此时在 overflow:hidden 外，不可见）
     charEl.dataset.zone = newZone;
     zoneEl.appendChild(charEl);
-    charEl.style.left = enterX + 'px';
-    charEl.style.bottom = '40px';
+    // 用 cssText 一次性清除所有定位属性（包括可能残留的 top），确保 bottom 生效
+    charEl.style.cssText = [
+      'position:absolute',
+      `left:${enterX}px`,
+      'bottom:40px',
+    ].join(';');
     updateFishIndex();
     // 入场方向：从左侧进来向右走，从右侧进来向左走
     const enterImgEl = charEl.querySelector('img');
@@ -437,7 +465,11 @@ function scheduleAction(slug, charEl) {
   const action = actions[Math.floor(Math.random() * actions.length)];
 
   if (action === 'walk') {
-    moveCharacter(charEl, 60 + Math.random() * 1000, () => {
+    // 目标 X 限制在 scene 宽度内，避免走出边界被 overflow:hidden 裁掉
+    const sceneEl = document.getElementById(ZONE_IDS[charEl.dataset.zone]);
+    const sceneW  = sceneEl ? sceneEl.offsetWidth : 900;
+    const walkTarget = 60 + Math.random() * Math.max(sceneW - 120, 200);
+    moveCharacter(charEl, walkTarget, () => {
       setTimeout(() => scheduleAction(slug, charEl), 800 + Math.random() * 2000);
     });
     return;

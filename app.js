@@ -7,8 +7,53 @@
 const ZONES = ['office', 'kitchen', 'toilet'];
 const ZONE_IDS = { office: 'office-area', kitchen: 'kitchen-area', toilet: 'toilet-area' };
 
-// ===== 可见角色集合（从 characters.js 的 defaultVisible 初始化）=====
-const visibleChars = new Set(defaultVisible);
+// ============================================================
+//  localStorage 持久化
+//  key: office-life-state
+//  结构: { visible: string[], zones: {slug: zone}, customChars: CharData[] }
+// ============================================================
+const STORAGE_KEY = 'office-life-state';
+
+function saveState() {
+  try {
+    const zones = {};
+    characters.forEach(c => {
+      const el = document.getElementById('char-' + c.slug);
+      if (el) zones[c.slug] = el.dataset.zone || c.zone;
+    });
+    const state = {
+      visible:     [...visibleChars],
+      zones,
+      // 自定义角色：保存完整数据（含 dataURL 图片）
+      customChars: characters.filter(c => c.isCustom),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    // localStorage 不可用（隐私模式/容量超限）时静默忽略
+    console.warn('[saveState] 无法写入 localStorage:', e);
+  }
+}
+
+/**
+ * 读取存档。返回 { visible, zones, customChars } 或 null（无存档）。
+ * 会做基本校验，损坏的存档返回 null。
+ */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const state = JSON.parse(raw);
+    if (!Array.isArray(state.visible) || typeof state.zones !== 'object') return null;
+    return state;
+  } catch (e) {
+    console.warn('[loadState] 存档损坏，已忽略:', e);
+    return null;
+  }
+}
+
+// ===== 可见角色集合（优先从存档恢复，否则用 defaultVisible）=====
+const _savedState = loadState();
+const visibleChars = new Set(_savedState ? _savedState.visible : defaultVisible);
 
 // ===== 游戏状态 =====
 let coffeeCount = 0;
@@ -38,14 +83,35 @@ function updateFishIndex() {
 
 // ===== 初始化角色 =====
 function initCharacters() {
+  // 1. 先恢复自定义角色（需要在遍历 characters 之前注入）
+  if (_savedState && Array.isArray(_savedState.customChars)) {
+    _savedState.customChars.forEach(c => {
+      // 防止重复注入
+      if (characters.find(x => x.slug === c.slug)) return;
+      characters.push(c);
+      // 恢复区域（存档里的 zones 优先）
+      if (_savedState.zones && _savedState.zones[c.slug]) {
+        c.zone = _savedState.zones[c.slug];
+      }
+      // 创建 DOM 并插入对应区域
+      const charEl = _createCharElement(c);
+      const zoneEl = document.getElementById(ZONE_IDS[c.zone]);
+      if (zoneEl) zoneEl.appendChild(charEl);
+    });
+  }
+
+  // 2. 初始化所有角色（含刚恢复的自定义角色）
   characters.forEach(c => {
     const el = document.getElementById('char-' + c.slug);
     if (!el) return;
-    el.dataset.zone = c.zone;
+    // 从存档恢复区域，否则用 characters.js 里的默认值
+    const zone = (_savedState?.zones?.[c.slug]) || c.zone;
+    el.dataset.zone = zone;
     el.style.display = visibleChars.has(c.slug) ? '' : 'none';
-    const zoneEl = document.getElementById(ZONE_IDS[c.zone]);
+    const zoneEl = document.getElementById(ZONE_IDS[zone]);
     if (zoneEl && el.parentElement !== zoneEl) zoneEl.appendChild(el);
   });
+
   updateStatCount();
   buildAvatarPanel();
   updateFishIndex();
@@ -97,10 +163,12 @@ function toggleChar(slug, avatarEl) {
     el.style.display = 'none';
     avatarEl.classList.remove('active');
     avatarEl.title = char.name + ' [已隐藏]';
+    saveState();
   } else {
     visibleChars.add(slug);
     el.style.display = '';
     avatarEl.classList.add('active');
+    saveState();
     avatarEl.title = char.name + ' [显示中]';
     setTimeout(() => scheduleAction(slug, el), 300);
   }
@@ -262,6 +330,7 @@ function _settleDrag(clientX, clientY) {
   charEl.dataset.zone = newZone;
 
   document.querySelectorAll('.scene').forEach(s => s.classList.remove('drop-target'));
+  saveState(); // 落地后保存区域和位置
 
   // 恢复 AI
   setTimeout(() => {
@@ -438,6 +507,7 @@ function walkToZone(slug, charEl, newZone, onDone) {
 
     // 3. 从边缘走入目标区域
     moveCharacter(charEl, destX, () => {
+      saveState(); // 跨区域完成后保存
       if (onDone) onDone();
     });
   });
@@ -1428,6 +1498,8 @@ function confirmAddChar() {
   // 启动 AI 行为
   setTimeout(() => scheduleAction(slug, charEl), 500 + Math.random() * 1000);
 
+  saveState(); // 保存新增的自定义角色
+
   // 关闭弹窗
   document.getElementById('add-char-overlay').style.display = 'none';
   document.getElementById('add-char-modal').style.display = 'none';
@@ -1452,6 +1524,7 @@ function removeCustomChar(slug) {
   buildAvatarPanel();
   updateStatCount();
   updateFishIndex();
+  saveState(); // 保存删除后的状态
 }
 
 // 动态创建角色 DOM 元素（与 index.html 中硬编码结构一致）

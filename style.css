@@ -1048,6 +1048,7 @@ body {
     line-height: 1.4;
     white-space: nowrap;
     word-wrap: break-word;
+    transition: bottom 0.25s ease;
   }
   .speech-bubble::after {
     content: '';
@@ -1232,6 +1233,18 @@ body {
   40% { margin-bottom: 3px; }
 }
 .yawning { animation: yawn 3s ease-in-out infinite; }
+
+/* 对话触发跳跃动画 */
+@keyframes chat-jump {
+  0%   { margin-bottom: 0; }
+  30%  { margin-bottom: 14px; }
+  60%  { margin-bottom: 4px; }
+  80%  { margin-bottom: 8px; }
+  100% { margin-bottom: 0; }
+}
+.chatting-jump {
+  animation: chat-jump 0.35s ease-out forwards;
+}
 
 /* 睡觉 zzz */
 @keyframes zzz-float {

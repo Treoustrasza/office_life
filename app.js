@@ -177,12 +177,24 @@ function toggleChar(slug, avatarEl) {
 }
 
 // ===== 对话气泡 =====
-function showPhrase(charEl, phrase) {
-  const old = charEl.querySelector('.speech-bubble');
-  if (old) old.remove();
+// 气泡高度（含间距），用于计算堆叠偏移
+const BUBBLE_STEP = 38; // px，约一行气泡高度 + 间距
+
+// participants: 参与本次对话的所有角色元素数组，新气泡出现时一起上推
+function showPhrase(charEl, phrase, participants = [charEl]) {
+  // 推所有参与者头上的已有气泡
+  participants.forEach(el => {
+    el.querySelectorAll('.speech-bubble').forEach(b => {
+      const next = parseFloat(b.dataset.level || '0') + 1;
+      b.dataset.level = next;
+      b.style.bottom = `calc(110% + 10px + ${next * BUBBLE_STEP}px)`;
+    });
+  });
+
   const bubble = document.createElement('div');
   bubble.className = 'speech-bubble';
   bubble.textContent = phrase;
+  bubble.dataset.level = '0';
   charEl.appendChild(bubble);
   setTimeout(() => bubble.remove(), 3000);
 }
@@ -513,13 +525,160 @@ function walkToZone(slug, charEl, newZone, onDone) {
   });
 }
 
+// ============================================================
+//  角色近距离对话系统
+// ============================================================
+
+// 触发对话的最大距离（px，基于 offsetLeft 差值）
+const CHAT_TRIGGER_DIST = 120;
+// 每次 scheduleAction 触发对话的概率
+const CHAT_TRIGGER_PROB = 0.12;
+
+// 正在进行对话的角色集合（防止同一角色同时参与多场对话）
+const _chatting = new Set();
+
+// 对话冷却中的角色集合（对话结束后 3 秒内不触发新对话/自言自语/移动）
+const _chatCooldown = new Set();
+const CHAT_COOLDOWN_MS = 3000;
+
+/**
+ * 检测当前区域内是否有其他角色在近距离，若有则小概率触发对话。
+ * 返回 true 表示已触发对话（scheduleAction 应直接 return）。
+ */
+function _tryTriggerChat(slug, charEl) {
+  if (_chatting.has(slug)) return false;
+  if (Math.random() > CHAT_TRIGGER_PROB) return false;
+
+  const zone = charEl.dataset.zone;
+  const myX  = charEl.offsetLeft;
+
+  // 找同区域内距离最近且未在对话中的角色
+  let bestSlug = null;
+  let bestEl   = null;
+  let bestDist = Infinity;
+
+  characters.forEach(c => {
+    if (c.slug === slug) return;
+    if (!visibleChars.has(c.slug)) return;
+    if (_chatting.has(c.slug)) return;
+    if (_dragPaused.has(c.slug)) return;
+    const el = document.getElementById('char-' + c.slug);
+    if (!el || el.style.display === 'none') return;
+    if (el.dataset.zone !== zone) return;
+    const dist = Math.abs(el.offsetLeft - myX);
+    if (dist < CHAT_TRIGGER_DIST && dist < bestDist) {
+      bestDist = dist;
+      bestSlug = c.slug;
+      bestEl   = el;
+    }
+  });
+
+  if (!bestSlug) return false;
+
+  // 锁定双方
+  _chatting.add(slug);
+  _chatting.add(bestSlug);
+
+  _runChatSequence(slug, charEl, bestSlug, bestEl);
+  return true;
+}
+
+/**
+ * 执行完整对话动画序列：
+ *   1. 双方转身面对面
+ *   2. 双方各跳两下
+ *   3. 甲说一句 -> 乙说一句
+ *   4. 解锁双方，继续各自 AI
+ */
+function _runChatSequence(slugA, elA, slugB, elB) {
+  // 停止双方当前移动
+  _stopMove(elA);
+  _stopMove(elB);
+  elA.classList.remove('working', 'drinking', 'yawning', 'walking');
+  elB.classList.remove('working', 'drinking', 'yawning', 'walking');
+
+  // 1. 转身面对面
+  //    A 在左侧 -> A 朝右，B 朝左；反之亦然
+  const aIsLeft = elA.offsetLeft <= elB.offsetLeft;
+  const imgA = elA.querySelector('img');
+  const imgB = elB.querySelector('img');
+
+  // 面朝对方：A 在左则 A 朝右，B 在右则 B 朝左
+  if (imgA) imgA.style.transform = getFacingScale(elA, aIsLeft);
+  if (imgB) imgB.style.transform = getFacingScale(elB, !aIsLeft);
+
+  // 2. 跳跃动画（CSS class，持续约 350ms × 2 次）
+  const _doJump = (el, onDone) => {
+    let count = 0;
+    const jump = () => {
+      el.classList.add('chatting-jump');
+      setTimeout(() => {
+        el.classList.remove('chatting-jump');
+        count++;
+        if (count < 2) setTimeout(jump, 150);
+        else onDone();
+      }, 350);
+    };
+    jump();
+  };
+
+  // 双方同时跳
+  let jumpsDone = 0;
+  const onJumpDone = () => {
+    jumpsDone++;
+    if (jumpsDone < 2) return;
+
+    // 3. 逐条播放台词序列
+    const lines = generateDialogueScene(slugA, slugB);
+    const iconA = elA.querySelector('.status-icon');
+    const iconB = elB.querySelector('.status-icon');
+
+    // 每条台词显示时长（ms）：气泡存在 3s，下一条在 2.2s 后开始（留 0.8s 重叠过渡）
+    const LINE_DURATION = 2200;
+
+    const participants = [elA, elB];
+    lines.forEach((line, i) => {
+      setTimeout(() => {
+        const el   = line.speaker === 'A' ? elA : elB;
+        const icon = line.speaker === 'A' ? iconA : iconB;
+        showPhrase(el, line.text, participants);
+        if (icon) icon.textContent = '💬';
+      }, i * LINE_DURATION);
+    });
+
+    // 4. 最后一条台词显示完毕后解锁，进入冷却期
+    const totalDuration = (lines.length - 1) * LINE_DURATION + 3000; // 最后一条气泡留足 3s
+    setTimeout(() => {
+      _chatting.delete(slugA);
+      _chatting.delete(slugB);
+      _chatCooldown.add(slugA);
+      _chatCooldown.add(slugB);
+      setTimeout(() => {
+        _chatCooldown.delete(slugA);
+        _chatCooldown.delete(slugB);
+        scheduleAction(slugA, elA);
+        scheduleAction(slugB, elB);
+      }, CHAT_COOLDOWN_MS);
+    }, totalDuration);
+  };
+
+  setTimeout(() => {
+    _doJump(elA, onJumpDone);
+    _doJump(elB, onJumpDone);
+  }, 200); // 转身后稍等再跳
+}
+
 // ===== AI 行为调度 =====
 function scheduleAction(slug, charEl) {
   if (!charEl || charEl.style.display === 'none') return;
   if (_dragPaused.has(slug)) return; // 正在被用户拖拽，跳过
+  if (_chatting.has(slug)) return;   // 正在对话中，禁止任何 AI 行为
   const char = characters.find(c => c.slug === slug);
   if (!char) return;
   charEl.classList.remove('working', 'drinking', 'yawning', 'walking');
+
+  // 小概率触发近距离对话（优先于其他行为；冷却期内跳过）
+  if (!_chatCooldown.has(slug) && _tryTriggerChat(slug, charEl)) return;
 
   // 10% 概率跨区域移动
   if (Math.random() < 0.10) {
@@ -565,6 +724,11 @@ function scheduleAction(slug, charEl) {
     if (icon) icon.textContent = '☕';
     showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);
   } else if (action === 'talk') {
+    // 冷却期内跳过自言自语，改为 idle
+    if (_chatCooldown.has(slug)) {
+      setTimeout(() => scheduleAction(slug, charEl), 2000 + Math.random() * 4000);
+      return;
+    }
     showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = '💬';

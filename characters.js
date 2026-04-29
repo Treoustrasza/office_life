@@ -79,7 +79,7 @@ const characters = [
     zone: 'office',
     quote: '"我追求的，是完美的胜利"',
     stats: {
-      '职业': '竞对公司高管',
+      '职业': '检察官',
       '胜率': '无败绩',
       '武器': '国际象棋',
       '外号': '不择手段的检察官',
@@ -249,7 +249,7 @@ const characters = [
     img: 'chars/houtsuki.png',
     facingRight: false,
     name: '宝月巴',
-    title: '竞对公司CEO',
+    title: '前·主任检察官',
     zone: 'toilet',
     quote: '"抱歉，我不能说。"',
     stats: {
@@ -313,7 +313,7 @@ const characters = [
       '形态': '立牌',
       '行为': '摇晃',
       '目的': '未知',
-      '危险度': '极高',
+      '危险度': '请过一个san check',
     },
     phrases: [
       '......',

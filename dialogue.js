@@ -66,19 +66,20 @@ const DIALOGUE_SCENES = [
 
   {
     lines: [
-      { speaker: 'A', text: '法庭记录员说，上次的庭审笔录有几处错字。' },
-      { speaker: 'B', text: '……那几处正好是关键证词。' },
-      { speaker: 'A', text: '必须申请更正，否则对方会拿来做文章。' },
-      { speaker: 'B', text: '我来写申请书。{nameA}，你去联系法官助理。' },
+      { speaker: 'A', text: '{name}反馈说，上次那个物证有点问题。' },
+      { speaker: 'A', text: '必须仔细核实，否则对方会拿来做文章。' },
+      { speaker: 'B', text: '可是马上就要开庭了吧？' },
+      { speaker: 'A', text: '我会尽量拖延时间，尽量不提出这种来历不明的证物。' },
+      { speaker: 'B', text: '……明白了，我会核实的。{nameA}，你要撑住啊！' },
     ],
   },
 
   {
     lines: [
-      { speaker: 'A', text: '证人明明在撒谎，但我找不到突破口。' },
+      { speaker: 'A', text: '上次庭审的时候证人明明在撒谎，但我找不到突破口。' },
       { speaker: 'B', text: '别急，{nameA}。证词里一定有矛盾，再看一遍。' },
       { speaker: 'A', text: '我已经看了五遍了……' },
-      { speaker: 'B', text: '那就看第六遍。' },
+      { speaker: 'B', text: '那就看第六遍。（摊手）' },
     ],
   },
 
@@ -298,6 +299,146 @@ const DIALOGUE_SCENES = [
     ],
   },
 
+  // ── 含随机词填充的场景 ────────────────────────────────────
+
+  {
+    lines: [
+      { speaker: 'A', text: '上次和{name}一起{action}，挺愉快的，希望下次还有机会。' },
+      { speaker: 'B', text: '哦？{name}也去了？我怎么不知道。' },
+      { speaker: 'A', text: '你那天不是有案子吗。' },
+      { speaker: 'B', text: '诶……那下次一定要叫上我啊。' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '{nameB}，你看到过{name}吗？' },
+      { speaker: 'B', text: '没注意……怎么了？' },
+      { speaker: 'A', text: '那个人好像把{thing}落在茶水间了。' },
+      { speaker: 'B', text: '……你才注意到啊，那东西放在那里都多久了……' },
+      { speaker: 'B', text: '之后找保洁清理掉算了。' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '昨天{action}的时候，{name}突然出现了。' },
+      { speaker: 'B', text: '真的假的，{name}也在？' },
+      { speaker: 'A', text: '对，还帮了不少忙。' },
+      { speaker: 'B', text: '诶，还挺靠谱的嘛！下次也想和{name}一起{action}！' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '{nameB}，{thing}是你的吗？' },
+      { speaker: 'B', text: '不是，我还以为是{nameA}你的呢。' },
+      { speaker: 'A', text: '那是谁的……' },
+      { speaker: 'B', text: '要不在食堂里贴张纸条问问？' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '听说{name}最近在{action}？' },
+      { speaker: 'B', text: '嗯，好像是。' },
+      { speaker: 'A', text: '……他有这个时间？' },
+      { speaker: 'B', text: '人家效率高嘛，{nameA}。' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '我把{thing}忘在哪里了，{nameB}你有没有看到？' },
+      { speaker: 'B', text: '没有……你上次用是在哪？' },
+      { speaker: 'A', text: '好像是{action}的时候。' },
+      { speaker: 'B', text: '那去那边找找吧。' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '{name}说要把{thing}还给我，结果到现在还没动静。' },
+      { speaker: 'B', text: '你要不要直接去问？' },
+      { speaker: 'A', text: '……开口有点难。' },
+      { speaker: 'B', text: '那就继续等吧，{nameA}。' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '上次{action}，{name}全程一言不发。' },
+      { speaker: 'B', text: '那家伙偶尔就会这样。' },
+      { speaker: 'A', text: '但最后结果还不错。' },
+      { speaker: 'B', text: '君子敏于行而讷于言，{nameA}。' },
+      { speaker: 'A', text: '……好难的话。' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '{nameB}，你会{action}吗？' },
+      { speaker: 'B', text: '勉强会一点，怎么了？' },
+      { speaker: 'A', text: '{name}在征集人一起哎。' },
+      { speaker: 'B', text: '叫我就行，什么时候？' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '有人在茶水间捡到了{thing}，不知道是谁的。' },
+      { speaker: 'B', text: '贴公告了吗？' },
+      { speaker: 'A', text: '贴了，但没人认领。' },
+      { speaker: 'B', text: '……{name}上周好像丢了东西，去问问他？' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '真不想和{name}合作……' },
+      { speaker: 'B', text: '又是你们一组？' },
+      { speaker: 'A', text: '嗯……不知道为什么，感觉就是合不来！' },
+      { speaker: 'B', text: '那不然……我……' },
+      { speaker: 'A', text: '可以吗？太好了，谢谢你，{nameB}！' },
+      { speaker: 'B', text: '等一下等一下所以具体是要做什么？' },
+      { speaker: 'A', text: '{action}。' },
+      { speaker: 'B', text: '……对不起我先走了！' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '{nameB}，又在加班吗？' },
+      { speaker: 'B', text: '是啊，碰到了很麻烦的委托人……' },
+      { speaker: 'B', text: '你要出门？' },
+      { speaker: 'A', text: '嗯，接下来和{name}约了一起{action}！' },
+      { speaker: 'B', text: '哈……（大声叹气）' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '{nameB}，都几点了，你怎么还在这！' },
+      { speaker: 'B', text: '？' },
+      { speaker: 'A', text: '该开会了，走走走，晚了的话{name}会生气的。' },
+      { speaker: 'B', text: '啊，真的哎，我完全忘记了！' },
+      { speaker: 'B', text: '等我收个尾……' },
+      { speaker: 'A', text: '来不及了！去会议室……不，先上线zoom！' },
+    ],
+  },
+
+  {
+    lines: [
+      { speaker: 'A', text: '约到{name}的时间了吗？' },
+      { speaker: 'B', text: '没……这人行事历完全是满的啊，下周可以吗？' },
+      { speaker: 'A', text: '不行。' },
+      { speaker: 'B', text: '那只能牺牲午休时间了……' },
+      { speaker: 'B', text: '不过好在，中午的会议室比较空呢。' },
+      { speaker: 'A', text: '……这算好消息吗……' },
+    ],
+  },
+
+
 ];
 
 // ===== 称呼表 =====
@@ -440,6 +581,24 @@ for (const slug of _SECONDARY_SLUGS) {
   );
 }
 
+// ===== 随机词库 =====
+
+// 物品 / 事物
+const THINGS_LIST = [
+  '证据袋', '卷宗', '印章', '便当盒', '钢笔', '咖啡杯',
+  '飘飘', '名片', '剪报', '尸检报告', '将军超人钥匙扣', '笔记本',
+  '手枪', '文件夹', '眼镜盒','马桶搋子','国际象棋','勾玉','扑克牌','葡萄酒','拉面碗'
+];
+
+// 做的事（动词短语）
+const ACTIONS_LIST = [
+  '整理证据', '开庭前准备', '去旁听庭审', '写文书',
+  '参加研讨会', '和委托人谈话', '去档案室查卷宗',
+  '在茶水间聊天', '烤地瓜', '去便利店买东西',
+  '参加部门周会', '出庭作证', '去拘留所见委托人',
+  '一起坐电梯', '在走廊吃铜锣烧','下国际象棋','吃拉面','修电脑','去公园划船','刷厕所'
+];
+
 // ===== 工具函数 =====
 
 /**
@@ -462,7 +621,12 @@ function _randPick(arr) {
 
 /**
  * 随机选取一个对话场景，返回已替换称呼的台词序列。
- * 每条台词格式：{ speaker: 'A' | 'B', text: string }
+ * 占位符：
+ *   {nameA}  → B 对 A 的称呼
+ *   {nameB}  → A 对 B 的称呼
+ *   {name}   → 随机第三方角色，按说话人各自的称呼字典替换
+ *   {thing}  → 随机物品
+ *   {action} → 随机动作短语
  *
  * @param {string} slugA  发起方 slug
  * @param {string} slugB  回应方 slug
@@ -470,13 +634,35 @@ function _randPick(arr) {
  */
 function generateDialogueScene(slugA, slugB) {
   const scene = _randPick(DIALOGUE_SCENES);
-  const nameB = getDialogueNickname(slugA, slugB); // A 对 B 的称呼
-  const nameA = getDialogueNickname(slugB, slugA); // B 对 A 的称呼
 
-  return scene.lines.map(line => ({
-    speaker: line.speaker,
-    text: line.text
-      .replace(/\{nameB\}/g, nameB)
-      .replace(/\{nameA\}/g, nameA),
-  }));
+  // A/B 互相的称呼
+  const nameB = getDialogueNickname(slugA, slugB); // A 叫 B
+  const nameA = getDialogueNickname(slugB, slugA); // B 叫 A
+
+  // {name}：从除 A、B 之外的角色里随机抽一个第三方
+  const otherSlugs = characters
+    .map(c => c.slug)
+    .filter(s => s !== slugA && s !== slugB);
+  const thirdSlug = _randPick(otherSlugs);
+  // A 和 B 对第三方的称呼可能不同，分别查字典
+  const nameFromA = getDialogueNickname(slugA, thirdSlug); // A 叫第三方
+  const nameFromB = getDialogueNickname(slugB, thirdSlug); // B 叫第三方
+
+  // {thing} / {action} 场景级抽一次，全程一致
+  const thing  = _randPick(THINGS_LIST);
+  const action = _randPick(ACTIONS_LIST);
+
+  return scene.lines.map(line => {
+    const isA = line.speaker === 'A';
+    const nameForThird = isA ? nameFromA : nameFromB;
+    return {
+      speaker: line.speaker,
+      text: line.text
+        .replace(/\{nameB\}/g,  nameB)
+        .replace(/\{nameA\}/g,  nameA)
+        .replace(/\{name\}/g,   nameForThird)
+        .replace(/\{thing\}/g,  thing)
+        .replace(/\{action\}/g, action),
+    };
+  });
 }

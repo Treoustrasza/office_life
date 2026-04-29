@@ -690,7 +690,9 @@ function scheduleAction(slug, charEl) {
     return;
   }
 
-  const actions = ['idle', 'walk', 'talk', 'drink', 'work'];
+  // 加权行为表：idle×3 walk×3 work×2 drink×1 talk×1
+  // talk/drink 权重低，避免连续触发气泡
+  const actions = ['idle', 'idle', 'idle', 'walk', 'walk', 'walk', 'work', 'work', 'drink', 'talk'];
   const action = actions[Math.floor(Math.random() * actions.length)];
 
   if (action === 'walk') {
@@ -706,6 +708,8 @@ function scheduleAction(slug, charEl) {
     charEl.classList.add('working');
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = ['💻', '⌨️', '📊', '📝', '🖱️'][Math.floor(Math.random() * 5)];
+    setTimeout(() => scheduleAction(slug, charEl), 3000 + Math.random() * 5000);
+    return;
   } else if (action === 'drink') {
     // 在茶水间且概率触发 → 走去咖啡机或贩卖机
     if (charEl.dataset.zone === 'kitchen') {
@@ -718,28 +722,34 @@ function scheduleAction(slug, charEl) {
         return;
       }
     }
-    // 其他情况：原地喝
+    // 其他情况：原地喝，气泡存在 3s，下次调度至少等 4s
     charEl.classList.add('drinking');
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = '☕';
     showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);
+    setTimeout(() => scheduleAction(slug, charEl), 4000 + Math.random() * 4000);
+    return;
   } else if (action === 'talk') {
     // 冷却期内跳过自言自语，改为 idle
     if (_chatCooldown.has(slug)) {
-      setTimeout(() => scheduleAction(slug, charEl), 2000 + Math.random() * 4000);
+      setTimeout(() => scheduleAction(slug, charEl), 3000 + Math.random() * 4000);
       return;
     }
     showPhrase(charEl, char.phrases[Math.floor(Math.random() * char.phrases.length)]);
     const icon = charEl.querySelector('.status-icon');
     if (icon) icon.textContent = '💬';
+    // 气泡存在 3s，下次调度至少等 5s，确保气泡消失后才可能再次说话
+    setTimeout(() => scheduleAction(slug, charEl), 5000 + Math.random() * 5000);
+    return;
   } else {
+    // idle
     if (Math.random() < 0.3) {
       charEl.classList.add('yawning');
       const icon = charEl.querySelector('.status-icon');
       if (icon) icon.textContent = '😴';
     }
   }
-  setTimeout(() => scheduleAction(slug, charEl), 2000 + Math.random() * 4000);
+  setTimeout(() => scheduleAction(slug, charEl), 3000 + Math.random() * 5000);
 }
 
 // ===== 启动所有可见角色 AI =====

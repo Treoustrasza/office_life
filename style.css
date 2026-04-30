@@ -1913,3 +1913,207 @@ body {
   transition: border-color 0.15s;
 }
 .acm-btn-secondary:hover { border-color: #64ffda; }
+
+/* ===== 选择来源卡片 ===== */
+.acm-choose-row {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0 8px;
+}
+.acm-choose-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px;
+  background: #0d1b35;
+  border: 2px solid #1e3a5f;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.12s;
+  font-family: 'ZCOOL KuaiLe', monospace;
+  text-align: center;
+}
+.acm-choose-card:hover {
+  border-color: #64ffda;
+  background: rgba(100,255,218,0.06);
+  transform: translateY(-2px);
+}
+.acm-choose-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+.acm-choose-name {
+  font-size: 16px;
+  color: #64ffda;
+  letter-spacing: 1px;
+}
+.acm-choose-desc {
+  font-size: 11px;
+  color: #a8b2d8;
+  letter-spacing: 0.5px;
+}
+
+/* 步骤1b 返回按钮行 */
+.acm-step1b-back {
+  margin-top: 12px;
+}
+
+/* ===== 像素画编辑器（步骤1c） ===== */
+.acm-step-pixel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.acm-pixel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.acm-pixel-header-actions {
+  display: flex;
+  gap: 8px;
+}
+/* 工具栏 */
+.acm-pixel-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.acm-tool-btn {
+  background: #0d1b35;
+  border: 1px solid #1e3a5f;
+  color: #a8b2d8;
+  font-size: 13px;
+  height: 32px;
+  padding: 0 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+  font-family: 'ZCOOL KuaiLe', monospace;
+  letter-spacing: 0.5px;
+}
+.acm-tool-btn:hover { border-color: #64ffda; background: rgba(100,255,218,0.08); }
+.acm-tool-btn.active { border-color: #64ffda; background: rgba(100,255,218,0.15); color: #64ffda; }
+.acm-toolbar-sep {
+  width: 1px;
+  height: 24px;
+  background: #1e3a5f;
+  flex-shrink: 0;
+}
+.acm-color-swatch-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.acm-color-swatches {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.acm-color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: border-color 0.1s, transform 0.1s;
+}
+.acm-color-swatch:hover { transform: scale(1.18); }
+.acm-color-swatch.active { border-color: #fff; box-shadow: 0 0 0 1px #64ffda; }
+.acm-color-custom-label {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1e3a5f;
+  border-radius: 4px;
+  background: #0d1b35;
+  transition: border-color 0.15s;
+}
+.acm-color-custom-label:hover { border-color: #64ffda; }
+.acm-color-custom-label input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.acm-color-custom-icon {
+  font-size: 16px;
+  pointer-events: none;
+}
+/* 当前颜色预览 */
+.acm-current-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.acm-current-color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.25);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.acm-current-color-label {
+  font-size: 11px;
+  color: #a8b2d8;
+  font-family: monospace;
+}
+.acm-pixel-clear-btn {
+  background: none;
+  border: 1px solid #1e3a5f;
+  color: #e94560;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.acm-pixel-clear-btn:hover { border-color: #e94560; background: rgba(233,69,96,0.08); }
+/* 画布容器：居中 + 棋盘格背景 */
+.acm-pixel-canvas-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+.acm-pixel-canvas {
+  display: block;
+  cursor: crosshair;
+  image-rendering: pixelated;
+  border: 1px solid #1e3a5f;
+  background: repeating-conic-gradient(#1a2a4a 0% 25%, #0d1b35 0% 50%) 0 0 / 24px 24px;
+}
+/* 底部操作栏 */
+.acm-pixel-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}

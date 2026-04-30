@@ -1318,6 +1318,233 @@ let _acmCustomCount = 0;        // 自定义角色计数，用于生成唯一 sl
 const ACM_REF_WIDTH  = 80;   // px（场景中角色图片的典型宽度）
 const ACM_REF_HEIGHT = 80;   // px（场景中角色图片的典型高度）
 
+// ===== 像素画编辑器 =====
+const PIXEL_COLS = 15;
+const PIXEL_ROWS = 15;
+const PIXEL_CELL = 24;  // 每格 24px → 画布 360×360，编辑舒适；导出后场景显示 80px 高，与现有角色一致
+
+// 像素数据：二维数组，null 表示透明，否则为 '#rrggbb' 字符串
+let _pixelData = [];
+let _pixelTool = 'draw';   // 'draw' | 'erase' | 'pick'
+let _pixelColor = '#e94560';
+let _pixelPainting = false; // 鼠标按下拖拽绘制中
+
+const PIXEL_PALETTE = [
+  '#ffffff', '#c0c0c0', '#808080', '#404040', '#000000',
+  '#e94560', '#ff9966', '#ffd700', '#a8e063', '#64ffda',
+  '#4fc3f7', '#7c4dff', '#f06292', '#ff7043', '#26c6da',
+];
+
+function _initPixelEditor() {
+  // 初始化像素数据
+  _pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+  _pixelTool = 'draw';
+  _pixelColor = '#e94560';
+  _pixelPainting = false;
+
+  // 初始化色卡
+  const swatchContainer = document.getElementById('acm-color-swatches');
+  if (swatchContainer && swatchContainer.childElementCount === 0) {
+    PIXEL_PALETTE.forEach(color => {
+      const s = document.createElement('div');
+      s.className = 'acm-color-swatch' + (color === _pixelColor ? ' active' : '');
+      s.style.background = color;
+      s.title = color;
+      s.addEventListener('click', () => setPixelColor(color));
+      swatchContainer.appendChild(s);
+    });
+  }
+
+  // 初始化 canvas
+  const canvas = document.getElementById('acm-pixel-canvas');
+  if (!canvas) return;
+  canvas.width  = PIXEL_COLS * PIXEL_CELL;
+  canvas.height = PIXEL_ROWS * PIXEL_CELL;
+
+  // 绑定事件（避免重复绑定）
+  canvas.onmousedown  = _pixelOnMouseDown;
+  canvas.onmousemove  = _pixelOnMouseMove;
+  canvas.onmouseup    = () => { _pixelPainting = false; };
+  canvas.onmouseleave = () => { _pixelPainting = false; };
+  // 触摸支持
+  canvas.ontouchstart = (e) => { e.preventDefault(); _pixelHandleTouch(e, true); };
+  canvas.ontouchmove  = (e) => { e.preventDefault(); _pixelHandleTouch(e, false); };
+  canvas.ontouchend   = () => { _pixelPainting = false; };
+
+  _updateColorUI();
+  _renderPixelCanvas();
+}
+
+function _pixelOnMouseDown(e) {
+  _pixelPainting = true;
+  _pixelApply(e);
+}
+function _pixelOnMouseMove(e) {
+  if (_pixelPainting) _pixelApply(e);
+}
+
+function _pixelHandleTouch(e, isStart) {
+  const touch = e.touches[0];
+  if (!touch) return;
+  if (isStart) _pixelPainting = true;
+  _pixelApply(touch);
+}
+
+function _pixelApply(e) {
+  const canvas = document.getElementById('acm-pixel-canvas');
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = PIXEL_COLS * PIXEL_CELL / rect.width;
+  const scaleY = PIXEL_ROWS * PIXEL_CELL / rect.height;
+  const px = Math.floor((e.clientX - rect.left) * scaleX / PIXEL_CELL);
+  const py = Math.floor((e.clientY - rect.top)  * scaleY / PIXEL_CELL);
+  if (px < 0 || px >= PIXEL_COLS || py < 0 || py >= PIXEL_ROWS) return;
+
+  if (_pixelTool === 'pick') {
+    const color = _pixelData[py][px];
+    if (color) {
+      setPixelColor(color);
+      setPixelTool('draw'); // 吸管后自动切回画笔
+    }
+    return;
+  }
+  if (_pixelTool === 'erase') {
+    _pixelData[py][px] = null;
+  } else {
+    _pixelData[py][px] = _pixelColor;
+  }
+  _renderPixelCanvas();
+}
+
+function _renderPixelCanvas() {
+  const canvas = document.getElementById('acm-pixel-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let row = 0; row < PIXEL_ROWS; row++) {
+    for (let col = 0; col < PIXEL_COLS; col++) {
+      const color = _pixelData[row][col];
+      if (color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(col * PIXEL_CELL, row * PIXEL_CELL, PIXEL_CELL, PIXEL_CELL);
+      }
+    }
+  }
+  // 绘制网格线（半透明）
+  ctx.strokeStyle = 'rgba(100,255,218,0.12)';
+  ctx.lineWidth = 0.5;
+  for (let col = 0; col <= PIXEL_COLS; col++) {
+    ctx.beginPath();
+    ctx.moveTo(col * PIXEL_CELL, 0);
+    ctx.lineTo(col * PIXEL_CELL, PIXEL_ROWS * PIXEL_CELL);
+    ctx.stroke();
+  }
+  for (let row = 0; row <= PIXEL_ROWS; row++) {
+    ctx.beginPath();
+    ctx.moveTo(0, row * PIXEL_CELL);
+    ctx.lineTo(PIXEL_COLS * PIXEL_CELL, row * PIXEL_CELL);
+    ctx.stroke();
+  }
+}
+
+function setPixelTool(tool) {
+  _pixelTool = tool;
+  ['draw', 'erase', 'pick'].forEach(t => {
+    const btn = document.getElementById('acm-tool-' + t);
+    if (btn) btn.classList.toggle('active', t === tool);
+  });
+}
+
+function setPixelColor(color) {
+  _pixelColor = color;
+  // 同步 color input
+  const ci = document.getElementById('acm-color-custom');
+  if (ci) ci.value = color;
+  // 更新色卡高亮
+  const swatches = document.querySelectorAll('.acm-color-swatch');
+  swatches.forEach(s => {
+    s.classList.toggle('active', s.style.background === color ||
+      _hexNormalize(s.style.background) === _hexNormalize(color));
+  });
+  _updateColorUI();
+  // 如果当前是吸管，切回画笔
+  if (_pixelTool === 'pick') setPixelTool('draw');
+}
+
+function _hexNormalize(color) {
+  // 将 rgb(r,g,b) 或 #rrggbb 统一转为小写 #rrggbb
+  if (!color) return '';
+  if (color.startsWith('#')) return color.toLowerCase();
+  const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (m) {
+    return '#' + [m[1], m[2], m[3]].map(n => parseInt(n).toString(16).padStart(2, '0')).join('');
+  }
+  return color.toLowerCase();
+}
+
+function _updateColorUI() {
+  const dot = document.getElementById('acm-current-color-dot');
+  const label = document.getElementById('acm-current-color-label');
+  if (dot) dot.style.background = _pixelColor;
+  if (label) label.textContent = _pixelColor;
+}
+
+function clearPixelCanvas() {
+  _pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+  _renderPixelCanvas();
+}
+
+function confirmPixelDraw() {
+  // 检查是否有内容
+  const hasContent = _pixelData.some(row => row.some(c => c !== null));
+  if (!hasContent) {
+    // 在步骤1c内显示提示（复用 acm-upload-error 不在此步骤，改用 alert 简单提示）
+    alert('画布是空的，请先画点什么 🎨');
+    return;
+  }
+
+  // 导出为 dataURL（透明底 PNG）
+  const canvas = document.getElementById('acm-pixel-canvas');
+  _acmCroppedDataURL = canvas.toDataURL('image/png');
+
+  // 跳过裁剪步骤，直接进入步骤3
+  _showAcmStep(3);
+  // 在步骤3预览画布中显示
+  const previewCanvas = document.getElementById('acm-preview-canvas');
+  if (previewCanvas) {
+    previewCanvas.width  = canvas.width;
+    previewCanvas.height = canvas.height;
+    const pCtx = previewCanvas.getContext('2d');
+    pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    pCtx.drawImage(canvas, 0, 0);
+    previewCanvas.style.width  = ACM_REF_WIDTH  + 'px';
+    previewCanvas.style.height = ACM_REF_HEIGHT + 'px';
+  }
+  // 像素画路径："重新裁剪"按钮改为"重新绘制"，点击回到步骤1c
+  const backBtn = document.querySelector('.acm-form-actions .acm-btn-secondary');
+  if (backBtn) {
+    backBtn.textContent = '◀ 重新绘制';
+    backBtn.onclick = () => _showAcmStep('1c');
+  }
+}
+
+function downloadPixelCanvas() {
+  const canvas = document.getElementById('acm-pixel-canvas');
+  if (!canvas) return;
+  // 导出时放大 4 倍，让下载的图片更清晰（480×480）
+  const scale = 4;
+  const offscreen = document.createElement('canvas');
+  offscreen.width  = PIXEL_COLS * PIXEL_CELL * scale;
+  offscreen.height = PIXEL_ROWS * PIXEL_CELL * scale;
+  const ctx = offscreen.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(canvas, 0, 0, offscreen.width, offscreen.height);
+  const link = document.createElement('a');
+  link.download = 'pixel-art-' + Date.now() + '.png';
+  link.href = offscreen.toDataURL('image/png');
+  link.click();
+}
+
 // ----- 打开/关闭弹窗 -----
 function openAddCharModal() {
   _resetAcmState();
@@ -1344,7 +1571,8 @@ function _resetAcmState() {
   // 重置文件输入
   const fi = document.getElementById('acm-file-input');
   if (fi) fi.value = '';
-  document.getElementById('acm-upload-text').textContent = '📁 点击选择 PNG 文件';
+  const uploadText = document.getElementById('acm-upload-text');
+  if (uploadText) uploadText.textContent = '点击选择 PNG 文件';
   _hideAcmError('acm-upload-error');
   _hideAcmError('acm-form-error');
   // 清空步骤3表单
@@ -1358,13 +1586,29 @@ function _resetAcmState() {
   if (facingEl) facingEl.value = 'right';
   // 重置裁剪模式按钮
   _setActiveModeBtn('acm-mode-width');
+  // 恢复"重新裁剪"按钮（像素画路径会改写它）
+  const backBtn = document.querySelector('.acm-form-actions .acm-btn-secondary');
+  if (backBtn) {
+    backBtn.style.display = '';
+    backBtn.textContent = '◀ 重新裁剪';
+    backBtn.onclick = backToCrop;
+  }
+  // 重置像素画状态
+  _pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+  _pixelTool = 'draw';
+  _pixelColor = '#e94560';
+  _pixelPainting = false;
 }
 
 function _showAcmStep(n) {
-  [1, 2, 3].forEach(i => {
-    const el = document.getElementById('acm-step' + i);
-    if (el) el.style.display = i === n ? '' : 'none';
+  // 支持的步骤 ID：1, '1b', '1c', 2, 3
+  const ALL_STEPS = [1, '1b', '1c', 2, 3];
+  ALL_STEPS.forEach(id => {
+    const el = document.getElementById('acm-step' + id);
+    if (el) el.style.display = (id == n || id === n) ? '' : 'none';
   });
+  // 进入像素画步骤时初始化编辑器
+  if (n === '1c') _initPixelEditor();
 }
 
 function _showAcmError(id, msg) {

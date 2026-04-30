@@ -603,11 +603,23 @@ const ACTIONS_LIST = [
 
 /**
  * 获取说话者对对方的称呼。
- * 优先查 DIALOGUE_NICKNAMES，找不到则用对方的 name。
+ * 优先级：
+ *   1. DIALOGUE_NICKNAMES[speaker][target]  — 精确配置的称呼
+ *   2. _DEFAULT_NICKNAMES[target]            — 说话者是自定义角色时，用通用默认称呼
+ *   3. target.name                           — 最终兜底（自定义角色互称、或目标也是自定义角色）
  */
 function getDialogueNickname(speakerSlug, targetSlug) {
+  // 1. 精确配置
   const map = DIALOGUE_NICKNAMES[speakerSlug];
   if (map && map[targetSlug]) return map[targetSlug];
+
+  // 2. 说话者是自定义角色 → 用 _DEFAULT_NICKNAMES 里的通用称呼叫内置角色
+  const speaker = characters.find(c => c.slug === speakerSlug);
+  if (speaker && speaker.isCustom) {
+    if (_DEFAULT_NICKNAMES[targetSlug]) return _DEFAULT_NICKNAMES[targetSlug];
+  }
+
+  // 3. 最终兜底：用对方的 name 字段
   const target = characters.find(c => c.slug === targetSlug);
   return target ? target.name : targetSlug;
 }

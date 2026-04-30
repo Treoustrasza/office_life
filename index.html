@@ -19,7 +19,7 @@
 
 <!-- 标题栏 -->
 <div id="title-bar">
-  <div id="title-left">⚡ <span>像素风工区模拟器 v1.0</span></div>
+  <div id="title-left">⚡ <span>像素风工区模拟器 v2.0</span></div>
   <div id="title-center">
     <h1>🏢 社畜收集梦想生活</h1>
     <p>▶ 点击角色查看状态 | 观察他们的日常生活</p>
@@ -485,15 +485,74 @@
     <button class="acm-close-btn" onclick="closeAddCharModal()">╳</button>
   </div>
 
-  <!-- 步骤1：上传图片 -->
+  <!-- 步骤1：选择来源 -->
   <div id="acm-step1" class="acm-step">
+    <div class="acm-step-title">① 选择角色图片来源</div>
+    <div class="acm-choose-row">
+      <button class="acm-choose-card" onclick="_showAcmStep('1b')">
+        <span class="acm-choose-icon">📁</span>
+        <span class="acm-choose-name">上传图片</span>
+        <span class="acm-choose-desc">选择本地透明底 PNG 文件</span>
+      </button>
+      <button class="acm-choose-card" onclick="_showAcmStep('1c')">
+        <span class="acm-choose-icon">🎨</span>
+        <span class="acm-choose-name">自己画</span>
+        <span class="acm-choose-desc">15×15 像素画布，透明底</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 步骤1b：上传图片 -->
+  <div id="acm-step1b" class="acm-step" style="display:none">
     <div class="acm-step-title">① 上传角色图片</div>
     <div class="acm-upload-hint">仅支持透明底 PNG 文件</div>
     <label class="acm-upload-label" id="acm-upload-label">
       <input type="file" id="acm-file-input" accept="image/png" onchange="handleCharImageUpload(event)">
-      <span id="acm-upload-text">📁 点击选择 PNG 文件</span>
+      <span id="acm-upload-text">点击选择 PNG 文件</span>
     </label>
     <div id="acm-upload-error" class="acm-error" style="display:none"></div>
+    <div class="acm-step1b-back">
+      <button class="acm-btn-secondary" onclick="_showAcmStep(1)">◀ 返回</button>
+    </div>
+  </div>
+
+  <!-- 步骤1c：像素画编辑器 -->
+  <div id="acm-step1c" class="acm-step acm-step-pixel" style="display:none">
+    <div class="acm-pixel-header">
+      <div class="acm-step-title" style="margin-bottom:0">① 自己画</div>
+      <div class="acm-pixel-header-actions">
+        <button class="acm-btn-secondary" onclick="downloadPixelCanvas()" title="下载像素画">⬇ 下载</button>
+        <button class="acm-btn-secondary" onclick="_showAcmStep(1)">◀ 返回</button>
+      </div>
+    </div>
+    <!-- 工具栏 -->
+    <div class="acm-pixel-toolbar">
+      <button class="acm-tool-btn active" id="acm-tool-draw" onclick="setPixelTool('draw')" title="画笔">✏️ 画笔</button>
+      <button class="acm-tool-btn" id="acm-tool-erase" onclick="setPixelTool('erase')" title="橡皮擦">🧹 橡皮擦</button>
+      <button class="acm-tool-btn" id="acm-tool-pick" onclick="setPixelTool('pick')" title="吸管">💉 吸管</button>
+      <div class="acm-toolbar-sep"></div>
+      <div class="acm-color-swatch-wrap">
+        <div class="acm-color-swatches" id="acm-color-swatches"></div>
+        <label class="acm-color-custom-label" title="自定义颜色">
+          <input type="color" id="acm-color-custom" value="#e94560" oninput="setPixelColor(this.value)">
+          <span class="acm-color-custom-icon">🎨</span>
+        </label>
+      </div>
+      <div class="acm-toolbar-sep"></div>
+      <div class="acm-current-color-row">
+        <span class="acm-current-color-dot" id="acm-current-color-dot"></span>
+        <span class="acm-current-color-label" id="acm-current-color-label">#e94560</span>
+      </div>
+      <button class="acm-pixel-clear-btn" onclick="clearPixelCanvas()" title="清空画布">🗑️</button>
+    </div>
+    <!-- 画布区域 -->
+    <div class="acm-pixel-canvas-wrap">
+      <canvas id="acm-pixel-canvas" class="acm-pixel-canvas"></canvas>
+    </div>
+    <!-- 底部操作 -->
+    <div class="acm-pixel-footer">
+      <button class="acm-btn-primary" onclick="confirmPixelDraw()">用这张图，填写角色信息 ▶</button>
+    </div>
   </div>
 
   <!-- 步骤2：裁剪 -->

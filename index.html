@@ -520,38 +520,45 @@
   <div id="acm-step1c" class="acm-step acm-step-pixel" style="display:none">
     <div class="acm-pixel-header">
       <div class="acm-step-title" style="margin-bottom:0">① 自己画</div>
-      <div class="acm-pixel-header-actions">
-        <button class="acm-btn-secondary" onclick="downloadPixelCanvas()" title="下载像素画">⬇ 下载</button>
-        <button class="acm-btn-secondary" onclick="_showAcmStep(1)">◀ 返回</button>
-      </div>
     </div>
-    <!-- 工具栏 -->
-    <div class="acm-pixel-toolbar">
-      <button class="acm-tool-btn active" id="acm-tool-draw" onclick="setPixelTool('draw')" title="画笔">✏️ 画笔</button>
-      <button class="acm-tool-btn" id="acm-tool-erase" onclick="setPixelTool('erase')" title="橡皮擦">🧹 橡皮擦</button>
-      <button class="acm-tool-btn" id="acm-tool-pick" onclick="setPixelTool('pick')" title="吸管">💉 吸管</button>
-      <div class="acm-toolbar-sep"></div>
-      <div class="acm-color-swatch-wrap">
-        <div class="acm-color-swatches" id="acm-color-swatches"></div>
-        <label class="acm-color-custom-label" title="自定义颜色">
-          <input type="color" id="acm-color-custom" value="#e94560" oninput="setPixelColor(this.value)">
-          <span class="acm-color-custom-icon">🎨</span>
-        </label>
+    <!-- 左右布局：左列工具栏，右列画布 -->
+    <div class="acm-pixel-body">
+      <!-- 左列：工具栏 -->
+      <div class="acm-pixel-sidebar">
+        <div class="acm-sidebar-group">
+          <div class="acm-sidebar-label">工具</div>
+          <button class="acm-tool-btn active" id="acm-tool-draw" onclick="setPixelTool('draw')" title="画笔">✏️ 画笔</button>
+          <button class="acm-tool-btn" id="acm-tool-erase" onclick="setPixelTool('erase')" title="橡皮擦">🧹 橡皮擦</button>
+          <button class="acm-tool-btn" id="acm-tool-pick" onclick="setPixelTool('pick')" title="吸管">💉 吸管</button>
+          <button class="acm-tool-btn" id="acm-tool-undo" onclick="undoPixelCanvas()" title="撤回" disabled>↩ 撤回</button>
+        </div>
+        <div class="acm-sidebar-group">
+          <div class="acm-sidebar-label">颜色</div>
+          <div class="acm-current-color-row">
+            <span class="acm-current-color-dot" id="acm-current-color-dot"></span>
+            <span class="acm-current-color-label" id="acm-current-color-label">#e94560</span>
+          </div>
+          <div class="acm-color-swatches" id="acm-color-swatches"></div>
+          <label class="acm-color-custom-label" title="自定义颜色">
+            <input type="color" id="acm-color-custom" value="#e94560" oninput="setPixelColor(this.value)">
+            <span class="acm-color-custom-icon">🎨 自定义</span>
+          </label>
+        </div>
+        <div class="acm-sidebar-group">
+          <button class="acm-pixel-clear-btn acm-pixel-clear-full" onclick="clearPixelCanvas()" title="清空画布">🗑️ 清空</button>
+        </div>
       </div>
-      <div class="acm-toolbar-sep"></div>
-      <div class="acm-current-color-row">
-        <span class="acm-current-color-dot" id="acm-current-color-dot"></span>
-        <span class="acm-current-color-label" id="acm-current-color-label">#e94560</span>
+      <!-- 右列：顶部按钮 + 画布 + 确认按钮，三者右侧对齐 -->
+      <div class="acm-pixel-canvas-wrap">
+        <div class="acm-pixel-header-actions">
+          <button class="acm-btn-secondary" onclick="downloadPixelCanvas()" title="下载像素画">⬇ 下载</button>
+          <button class="acm-btn-secondary" onclick="_showAcmStep(1)">◀ 返回</button>
+        </div>
+        <canvas id="acm-pixel-canvas" class="acm-pixel-canvas"></canvas>
+        <div class="acm-pixel-footer">
+          <button class="acm-btn-primary" onclick="confirmPixelDraw()">用这张图，填写角色信息 ▶</button>
+        </div>
       </div>
-      <button class="acm-pixel-clear-btn" onclick="clearPixelCanvas()" title="清空画布">🗑️</button>
-    </div>
-    <!-- 画布区域 -->
-    <div class="acm-pixel-canvas-wrap">
-      <canvas id="acm-pixel-canvas" class="acm-pixel-canvas"></canvas>
-    </div>
-    <!-- 底部操作 -->
-    <div class="acm-pixel-footer">
-      <button class="acm-btn-primary" onclick="confirmPixelDraw()">用这张图，填写角色信息 ▶</button>
     </div>
   </div>
 

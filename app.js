@@ -1325,6 +1325,7 @@ const PIXEL_CELL = 24;  // 每格 24px → 画布 360×360，编辑舒适；导�
 
 // 像素数据：二维数组，null 表示透明，否则为 '#rrggbb' 字符串
 let _pixelData = [];
+let _pixelHistory = [];    // 撤回历史栈，每项为 _pixelData 的深拷贝
 let _pixelTool = 'draw';   // 'draw' | 'erase' | 'pick'
 let _pixelColor = '#e94560';
 let _pixelPainting = false; // 鼠标按下拖拽绘制中
@@ -1336,11 +1337,12 @@ const PIXEL_PALETTE = [
 ];
 
 function _initPixelEditor() {
-  // 初始化像素数据
-  _pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
-  _pixelTool = 'draw';
-  _pixelColor = '#e94560';
-  _pixelPainting = false;
+// 初始化像素数据
+_pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+_pixelHistory = [];
+_pixelTool = 'draw';
+_pixelColor = '#e94560';
+_pixelPainting = false;
 
   // 初始化色卡
   const swatchContainer = document.getElementById('acm-color-swatches');
@@ -1376,8 +1378,9 @@ function _initPixelEditor() {
 }
 
 function _pixelOnMouseDown(e) {
-  _pixelPainting = true;
-  _pixelApply(e);
+_pixelSaveHistory();
+_pixelPainting = true;
+_pixelApply(e);
 }
 function _pixelOnMouseMove(e) {
   if (_pixelPainting) _pixelApply(e);
@@ -1385,9 +1388,9 @@ function _pixelOnMouseMove(e) {
 
 function _pixelHandleTouch(e, isStart) {
   const touch = e.touches[0];
-  if (!touch) return;
-  if (isStart) _pixelPainting = true;
-  _pixelApply(touch);
+if (!touch) return;
+if (isStart) { _pixelSaveHistory(); _pixelPainting = true; }
+_pixelApply(touch);
 }
 
 function _pixelApply(e) {
@@ -1490,8 +1493,27 @@ function _updateColorUI() {
 }
 
 function clearPixelCanvas() {
-  _pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+_pixelSaveHistory();
+_pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+_renderPixelCanvas();
+}
+
+function _pixelSaveHistory() {
+  _pixelHistory.push(_pixelData.map(row => row.slice()));
+  if (_pixelHistory.length > 50) _pixelHistory.shift();
+  _updateUndoBtn();
+}
+
+function undoPixelCanvas() {
+  if (_pixelHistory.length === 0) return;
+  _pixelData = _pixelHistory.pop();
   _renderPixelCanvas();
+  _updateUndoBtn();
+}
+
+function _updateUndoBtn() {
+  const btn = document.getElementById('acm-tool-undo');
+  if (btn) btn.disabled = _pixelHistory.length === 0;
 }
 
 function confirmPixelDraw() {
@@ -1593,11 +1615,12 @@ function _resetAcmState() {
     backBtn.textContent = '◀ 重新裁剪';
     backBtn.onclick = backToCrop;
   }
-  // 重置像素画状态
-  _pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
-  _pixelTool = 'draw';
-  _pixelColor = '#e94560';
-  _pixelPainting = false;
+// 重置像素画状态
+_pixelData = Array.from({ length: PIXEL_ROWS }, () => Array(PIXEL_COLS).fill(null));
+_pixelHistory = [];
+_pixelTool = 'draw';
+_pixelColor = '#e94560';
+_pixelPainting = false;
 }
 
 function _showAcmStep(n) {
